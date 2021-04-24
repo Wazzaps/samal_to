@@ -1,0 +1,26 @@
+Tag {
+    name: String,
+}
+
+Task {
+    mut name: String,
+    mut description: String,
+    mut mustHaveTags: [&Tag],
+    mut mustNotHaveTags: [&Tag],
+}
+
+Assignment {
+    startTime: Time,
+    endTime: Time,
+    task: &Task,
+    person: &Person?,
+}
+
+Person {
+    num: int,
+    mut name: String,
+    mut phoneNum: String,
+    mut tags: [String],
+    ident_color: int,
+    ident_pattern: int,
+}

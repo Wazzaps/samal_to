@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:export-filename="/home/david/code/samal_to/samal_to_server/frontend/src/assets/logo.png"
+   inkscape:export-xdpi="50.799999"
+   inkscape:export-ydpi="50.799999"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient848">
+      <stop
+         style="stop-color:#1a89ff;stop-opacity:1"
+         offset="0"
+         id="stop844" />
+      <stop
+         style="stop-color:#006cdf;stop-opacity:1"
+         offset="1"
+         id="stop846" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient848"
+       id="linearGradient850"
+       x1="64"
+       y1="-7.1054274e-15"
+       x2="64"
+       y2="64"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.732705"
+     inkscape:cx="171.25615"
+     inkscape:cy="178.83793"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1003"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:url(#linearGradient850);fill-opacity:1;stroke-width:0.281181;stroke-linejoin:round;paint-order:stroke fill markers"
+       id="rect833-4"
+       width="64"
+       height="64"
+       x="0"
+       y="-7.1054274e-15"
+       ry="8.0954514" />
+    <g
+       id="g888"
+       transform="matrix(1.0610638,0,0,1.0610638,-108.91871,-63.078738)">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:20.6136px;line-height:1.25;font-family:'Fira Sans Compressed';-inkscape-font-specification:'Fira Sans Compressed Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.515342"
+         x="106.28954"
+         y="86.792351"
+         id="text851-3"><tspan
+           sodipodi:role="line"
+           id="tspan849-0"
+           x="106.28954"
+           y="86.792351"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Fira Sans Compressed';-inkscape-font-specification:'Fira Sans Compressed Bold';fill:#ffffff;fill-opacity:1;stroke-width:0.515342">SAMAL</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:20.6136px;line-height:1.25;font-family:'Fira Sans Compressed';-inkscape-font-specification:'Fira Sans Compressed Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.515342"
+         x="136.05559"
+         y="106.70686"
+         id="text855-3"><tspan
+           sodipodi:role="line"
+           id="tspan853-0"
+           x="136.05559"
+           y="106.70686"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Fira Sans Compressed';-inkscape-font-specification:'Fira Sans Compressed Bold';fill:#ffffff;fill-opacity:1;stroke-width:0.515342">.TO</tspan></text>
+    </g>
+  </g>
+</svg>

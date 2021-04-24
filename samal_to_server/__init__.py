@@ -1,7 +1,7 @@
 from flask import Flask
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 app.config.from_mapping(
     SECRET_KEY='dev',
     DATABASE=os.path.join(app.instance_path, 'samal_to.sqlite'),
@@ -14,4 +14,4 @@ except OSError:
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return app.send_static_file('index.html')
