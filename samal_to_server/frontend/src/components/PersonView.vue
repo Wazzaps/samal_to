@@ -52,6 +52,16 @@
     <hr/>
 
     <!-- Assignments -->
+    <h3>Assigned shifts</h3>
+
+    <b-list-group class="mb-3">
+      <b-list-group-item v-for="(shift, shiftId) in assignedShifts" :key="shiftId">
+        <div class="d-flex flex-column">
+          <strong>{{shift.task.name}}</strong>
+          <span>{{formatShiftTime(shift.shift)}}</span>
+        </div>
+      </b-list-group-item>
+    </b-list-group>
   </div>
 </template>
 
@@ -74,7 +84,7 @@ export default {
   },
   computed: {
     ...mapState({
-      tagRecommendations: function (state) {
+      tagRecommendations(state) {
         let allTags = Object.keys(state.tags);
         let myTags = state.people[this.$route.params.id].tags;
         return allTags.filter((tagId) => {
@@ -82,6 +92,17 @@ export default {
         }).map((tagId) => {
           return [state.tags[tagId], tagId];
         });
+      },
+      assignedShifts(state) {
+        let shifts = [];
+        for (const task of Object.values(state.tasks)) {
+          for (const shift of Object.values(task.shifts)) {
+            if (shift.assigned == this.$route.params.id) {
+              shifts.push({task, shift});
+            }
+          }
+        }
+        return shifts;
       }
     })
   },
@@ -120,7 +141,21 @@ export default {
       for (const tagId of removedTagIds) {
         this.removeTag(tagId);
       }
-    }
+    },
+
+    formatShiftTime(shift) {
+      const startHr = parseInt(shift.start / 4);
+      const startMin = (shift.start % 4) * 15;
+      const endHr = parseInt((shift.start + shift.duration) / 4);
+      const endMin = ((shift.start + shift.duration) % 4) * 15;
+      return `${startHr}:${startMin.toString().padStart(2, '0')} - ${endHr}:${endMin.toString().padStart(2, '0')}`;
+    },
+
+    formatShiftDuration(shift) {
+      const durationHr = parseInt(shift.duration / 4);
+      const durationMin = (shift.duration % 4) * 15;
+      return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 4 ? '' : 's'})`;
+    },
   }
 }
 </script>

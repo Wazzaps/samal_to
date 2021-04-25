@@ -5,7 +5,7 @@
         <b-input-group-text><b-icon-card-text/></b-input-group-text>
       </template>
       <b-form-textarea
-        :value="$store.state.tasks[$route.params.id].description"
+        :value="currentTask.description"
         class="description"
         size="lg"
         rows="3"
@@ -23,7 +23,7 @@
         </b-input-group-text>
       </template>
       <b-form-tags
-        :value="$store.state.tasks[$route.params.id].mustHaveTags.map(i => $store.state.tags[i])"
+        :value="currentTask.mustHaveTags.map(i => $store.state.tags[i])"
         tag-variant="primary"
         tag-pills
         size="lg"
@@ -44,7 +44,7 @@
         </b-input-group-text>
       </template>
       <b-form-tags
-        :value="$store.state.tasks[$route.params.id].mustNotHaveTags.map(i => $store.state.tags[i])"
+        :value="currentTask.mustNotHaveTags.map(i => $store.state.tags[i])"
         tag-variant="danger"
         tag-pills
         size="lg"
@@ -56,15 +56,66 @@
     <b-form-text id="tags-remove-on-delete-help" class="mt-2 ml-5">
       Press the <kbd class="bg-light text-body border">,</kbd> key to add the tag
     </b-form-text>
+
+    <hr/>
+
+    <h3>Shifts</h3>
+
+    <b-list-group class="mb-3">
+      <b-list-group-item :to="'/tasks/' + currentTaskId + '/shifts/' + shiftId" v-for="(shift, shiftId) in currentTask.shifts" :key="shiftId">
+        <div class="d-flex flex-column">
+          <span>
+            <strong>{{formatShiftTime(shift)}}</strong>
+            {{formatShiftDuration(shift)}}
+          </span>
+          <span class="description">{{formatShiftAssigned(shift)}}</span>
+        </div>
+      </b-list-group-item>
+    </b-list-group>
+    <b-button variant="primary" class="float-right mb-3 pr-4 pl-3 py-2"><b-icon-plus/> Add</b-button>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'TaskView',
   props: {
   },
   components: {
+  },
+  computed: {
+    ...mapState({
+      currentTask(state) {
+        return state.tasks[this.$route.params.id];
+      },
+    }),
+
+    currentTaskId() {
+      return this.$route.params.id;
+    }
+  },
+  methods: {
+    formatShiftTime(shift) {
+      const startHr = parseInt(shift.start / 4);
+      const startMin = (shift.start % 4) * 15;
+      const endHr = parseInt((shift.start + shift.duration) / 4);
+      const endMin = ((shift.start + shift.duration) % 4) * 15;
+      return `${startHr}:${startMin.toString().padStart(2, '0')} - ${endHr}:${endMin.toString().padStart(2, '0')}`;
+    },
+    formatShiftDuration(shift) {
+      const durationHr = parseInt(shift.duration / 4);
+      const durationMin = (shift.duration % 4) * 15;
+      return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 4 ? '' : 's'})`;
+    },
+    formatShiftAssigned(shift) {
+      if (shift.assigned === null) {
+        return 'Not assigned';
+      } else {
+        const assigned = this.$store.state.people[shift.assigned];
+        return `Assigned #${assigned.num}: ${assigned.name}`;
+      }
+    },
   }
 }
 </script>

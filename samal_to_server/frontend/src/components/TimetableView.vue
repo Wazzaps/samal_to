@@ -9,6 +9,8 @@
     <!-- Highlight ID toggle -->
     <!-- <b-button @click="increment()">{{this.$store.state.count}}</b-button> -->
 
+    <h3>TODO: Shifts x People</h3>
+
     <b-modal id="timerange-picker" title="Select date &amp; time range">
       <h5>Start date:</h5>
       <b-row>
