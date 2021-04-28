@@ -3,6 +3,7 @@ from ortools.sat.python import cp_model
 import copy
 import math
 from functools import reduce
+import time
 
 model = cp_model.CpModel()
 
@@ -10,12 +11,24 @@ model = cp_model.CpModel()
 people = [{
     'restricted_tasks': [],
     'assigned_tasks': [],
+    'prefers_longer_sleep': False
 } for i in range(16)]
 
 # people[0]['restricted_tasks'] = [32]
 # people[0]['assigned_tasks'] = [0]
+# people[0]['prefers_longer_sleep'] = True
 
-MIN_REST_PER_DAY = int(8.5 * 60)
+MIN_REST_PER_DAY = int(6 * 60)
+LONGER_MIN_REST_PER_DAY = int(8 * 60)
+OVERTIME_INTERVAL_MIN = 15
+OVERTIME_THRESHOLD = int(3 * 60 / OVERTIME_INTERVAL_MIN)
+MAX_OVERTIME_INTERVALS = int(2 * 60 / OVERTIME_INTERVAL_MIN)
+LONGSLEEP_MAX_OVERTIME_INTERVALS = int(3 * 60 / OVERTIME_INTERVAL_MIN)
+
+SUFFER_PER_OVERTIME_MIN = 5
+LONGSLEEP_SUFFER_PER_OVERTIME_MIN = 0
+SUFFER_PER_OVERTIME = OVERTIME_INTERVAL_MIN * SUFFER_PER_OVERTIME_MIN
+LONGSLEEP_SUFFER_PER_OVERTIME = OVERTIME_INTERVAL_MIN * SUFFER_PER_OVERTIME_MIN
 
 shifts = [
     # Task A
@@ -31,12 +44,12 @@ shifts = [
     { 'time': int((24+6) * 60), 'duration': int((1) * 60), 'cost': 100 },
 
     # Task C
-    { 'time': int((15) * 60), 'duration': int((3.5) * 60), 'cost': 100 },
-    { 'time': int((15) * 60), 'duration': int((3.5) * 60), 'cost': 100 },
-    { 'time': int((14.5) * 60), 'duration': int((5) * 60), 'cost': 100 },
-    { 'time': int((24+6.5) * 60), 'duration': int((5) * 60), 'cost': 100 },
-    { 'time': int((24+7) * 60), 'duration': int((4.5) * 60), 'cost': 100 },
-    { 'time': int((24+7) * 60), 'duration': int((4.5) * 60), 'cost': 100 },
+    { 'time': int((15) * 60), 'duration': int((3.5) * 60), 'cost': 70 },
+    { 'time': int((15) * 60), 'duration': int((3.5) * 60), 'cost': 70 },
+    { 'time': int((14.5) * 60), 'duration': int((5) * 60), 'cost': 70 },
+    { 'time': int((24+6.5) * 60), 'duration': int((5) * 60), 'cost': 70 },
+    { 'time': int((24+7) * 60), 'duration': int((4.5) * 60), 'cost': 70 },
+    { 'time': int((24+7) * 60), 'duration': int((4.5) * 60), 'cost': 70 },
 
     # Task D
     { 'time': int((21) * 60), 'duration': int((2) * 60), 'cost': 100 },
@@ -101,7 +114,7 @@ def end_time(task):
 max_end_time = max(map(end_time, shifts))
 
 
-# -- Create bool variable for each shift, for each person (will the person do this shift) --
+# -- Create bool variable for each shift x person (will the person do this shift) --
 people_at_shift = [
     [
         model.NewBoolVar('person{}_shift{}'.format(person_i, shift_i))
@@ -110,11 +123,35 @@ people_at_shift = [
     for person_i in range(len(people))
 ]
 
+# -- Create bool variable for each 15min x person (is working at that time) --
+people_is_working = [
+    [
+        model.NewBoolVar('person{}_isworking{}'.format(person_i, is_working_i))
+        for is_working_i in range(max(0, int(max_end_time / OVERTIME_INTERVAL_MIN)))
+    ]
+    for person_i in range(len(people))
+]
+
+# -- Create bool variable for each 15min x person (is working for too long) --
+people_overtime = [
+    [
+        model.NewBoolVar('person{}_overtime{}'.format(person_i, overtime_i))
+        for overtime_i in range(max(0, int(max_end_time / OVERTIME_INTERVAL_MIN) - OVERTIME_THRESHOLD))
+    ]
+    for person_i in range(len(people))
+]
+
 
 # -- Cost function --
 suffering_per_person = [
-    sum([shifts[i]['duration'] * shifts[i]['cost'] * shift_var for i, shift_var in enumerate(person_shifts)])
-    for person_shifts in people_at_shift
+    sum(
+        [shifts[i]['duration'] * shifts[i]['cost'] * shift_var for i, shift_var in enumerate(person_shifts)] +
+        [
+            (LONGSLEEP_SUFFER_PER_OVERTIME if people[person_idx]['prefers_longer_sleep'] else SUFFER_PER_OVERTIME)
+                * overtime_var for overtime_var in people_overtime[person_idx]
+        ]
+    )
+    for person_idx, person_shifts in enumerate(people_at_shift)
 ]
 
 
@@ -142,7 +179,6 @@ for person_shifts in people_at_shift:
         for j, other_assignment in enumerate(person_shifts[i+1:]):
             other_task = shifts[i+1+j]
             if does_overlap(task, other_task):
-                # print((assignment + other_assignment) != 2)
                 model.Add((assignment + other_assignment) != 2)
 
 
@@ -160,25 +196,67 @@ for day in range(math.ceil(max_end_time / (24 * 60))):
         ]
         options.append(disallowed_shifts)
 
-    for person_shifts in people_at_shift:
-        # for option in options:
-        #     print(sum(person_shifts[i] for i in option) == 0)
+    longsleep_options = []
+    for window in range(0, (24*60) - LONGER_MIN_REST_PER_DAY + 5, 5):
+        disallowed_shifts = [
+            shift['id']
+            for shift in relevant_shifts
+            if does_overlap(shift, { 'time': 24*60*day + window, 'duration': LONGER_MIN_REST_PER_DAY })
+        ]
+        longsleep_options.append(disallowed_shifts)
 
-        tmp_boolvars = [model.NewBoolVar('') for _ in options]
+    for person_idx, person_shifts in enumerate(people_at_shift):
+        if people[person_idx]['prefers_longer_sleep']:
+            tmp_boolvars = [model.NewBoolVar('') for _ in longsleep_options]
 
-        for i, option in enumerate(options):
-            model.Add(sum([person_shifts[shift] for shift in option]) == 0).OnlyEnforceIf(tmp_boolvars[i])
+            for i, option in enumerate(longsleep_options):
+                model.Add(sum([person_shifts[shift] for shift in option]) == 0).OnlyEnforceIf(tmp_boolvars[i])
+        else:
+            tmp_boolvars = [model.NewBoolVar('') for _ in options]
+
+            for i, option in enumerate(options):
+                model.Add(sum([person_shifts[shift] for shift in option]) == 0).OnlyEnforceIf(tmp_boolvars[i])
 
         model.Add(sum(tmp_boolvars) != 0)
 
 
-# -- Constraint: No adjacent? --
-# TODO
+# -- Constraint: Overtime bad --
+for person_idx, work_intervals in enumerate(people_is_working):
+    for interval_idx, is_working_var in enumerate(work_intervals):
+        interval_count = interval_idx
+        active_shifts = [
+            people_at_shift[person_idx][shift['id']]
+            for shift in shifts
+            if does_overlap(shift, { 'time': interval_count * OVERTIME_INTERVAL_MIN, 'duration': OVERTIME_INTERVAL_MIN })
+        ]
 
+        model.Add(sum(active_shifts) != 0).OnlyEnforceIf(is_working_var)
+        model.Add(sum(active_shifts) == 0).OnlyEnforceIf(is_working_var.Not())
+
+for person_idx, person_overtime in enumerate(people_overtime):
+    for interval_idx, overtime_var in enumerate(person_overtime):
+        interval_count = interval_idx + OVERTIME_THRESHOLD
+
+        model.Add(sum(people_is_working[person_idx][interval_idx:interval_idx+OVERTIME_THRESHOLD+1]) == OVERTIME_THRESHOLD+1).OnlyEnforceIf(overtime_var)
+        model.Add(sum(people_is_working[person_idx][interval_idx:interval_idx+OVERTIME_THRESHOLD+1]) != OVERTIME_THRESHOLD+1).OnlyEnforceIf(overtime_var.Not())
+
+
+# -- Constraint: Too much overtime denied --
+for day in range(math.ceil(max_end_time / (24 * 60))):
+    for person_idx, person_overtime in enumerate(people_overtime):
+        OVERTIME_INTERVALS_PER_DAY = 24 * int(60 / OVERTIME_INTERVAL_MIN)
+        max_overtime = LONGSLEEP_MAX_OVERTIME_INTERVALS if people[person_idx]['prefers_longer_sleep'] else MAX_OVERTIME_INTERVALS
+        model.Add(sum(
+            person_overtime[
+                max(0, day * OVERTIME_INTERVALS_PER_DAY - OVERTIME_THRESHOLD)
+                :max(0, (day+1) * OVERTIME_INTERVALS_PER_DAY - OVERTIME_THRESHOLD)
+            ]
+        ) <= max_overtime)
 
 # -- Minimize suffering delta --
 total = sum(shift['duration'] * shift['cost'] for shift in shifts)
 avg = total // len(people)
+print(f'Expected avg suffering: {avg}')
 delta = model.NewIntVar(0, total, "delta")
 
 for suffering in suffering_per_person:
@@ -197,31 +275,40 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
 
     def on_solution_callback(self):
         self.__solution_count += 1
-        print(f'Delta: {self.Value(delta)} (~{self.Value(delta)/100/60*2:0.03} hrs)')
+        print(f'Time: {int(time.time())}, Delta: {self.Value(delta)*2} (~{self.Value(delta)/100/60*2:0.03} hrs)')
 
     def solution_count(self):
         return self.__solution_count
 
 
+print('Solving...')
 solver = cp_model.CpSolver()
-solver.parameters.num_search_workers = 8
-solver.parameters.max_time_in_seconds = 2
+solver.parameters.num_search_workers = 16
+solver.parameters.max_time_in_seconds = 5
 ans = solver.SolveWithSolutionCallback(model, SolutionPrinter())
 
 if ans == cp_model.FEASIBLE:
     print('Feasible')
 elif ans == cp_model.OPTIMAL:
     print('Optimal')
-elif ans == cp_model.INFEASIBLE:
+elif ans == cp_model.INFEASIBLE or ans == cp_model.UNKNOWN:
     print('Infeasible')
     exit(1)
 
 errors = []
+normal_suffers = []
+longsleep_suffers = []
 for person_idx, person in enumerate(people_at_shift):
     print('--------------------------')
     person_assignments = [solver.Value(v) for v in person]
     person_assignments_string = ''.join(map(str, person_assignments))
     print(f'Assign.: {person_assignments_string}')
+    person_is_working = [solver.Value(v) for v in people_is_working[person_idx]]
+    person_is_working_string = ''.join(map(str, person_is_working))
+    print(f'Working:  {person_is_working_string}')
+    person_overtime = [solver.Value(v) for v in people_overtime[person_idx]]
+    person_overtime_string = ''.join(map(str, person_overtime))
+    print(f'Overtime: {"0" * OVERTIME_THRESHOLD}{person_overtime_string}')
 
     # Verify non-overlap
     for i, assignment in enumerate(person_assignments):
@@ -242,12 +329,22 @@ for person_idx, person in enumerate(people_at_shift):
             is_working[task['time']:task['time'] + task['duration']] = [1 for _ in range(task['duration'])]
 
     minute_string = ''.join(map(str, is_working))
-    print(f'Rest: {minute_string[::60]}')
-    rest_min = max(len(s) for s in minute_string.split('1'))
-    if rest_min < MIN_REST_PER_DAY:
-        errors.append(f'Person #{person_idx} has only {rest_min / 60} hrs rest per day')
+    # print(f'Work hrs: {minute_string[::60]}')
+    consec_rest_min = max(len(s) for s in minute_string.split('1'))
+    consec_work_min = max(len(s) for s in minute_string.split('0'))
+    if consec_rest_min < MIN_REST_PER_DAY:
+        errors.append(f'Person #{person_idx} has only {consec_rest_min / 60} hrs rest per day')
     work_mins = sum(shifts[i]['duration'] for i, assigned in enumerate(person_assignments) if assigned)
-    print(f'Max Rest: {int(rest_min/60)}:{str(rest_min % 60).ljust(2, "0")}, Hrs: {work_mins/60}, Suf.: {solver.Value(suffering_per_person[person_idx])}')
+    print(f'Max Rest: {int(consec_rest_min/60)}:{str(consec_rest_min % 60).ljust(2, "0")}, '
+          f'Max Work: {int(consec_work_min/60)}:{str(consec_work_min % 60).ljust(2, "0")}, '
+          f'Total Work: {int(work_mins/60)}:{str(work_mins % 60).ljust(2, "0")}, '
+          f'Suffer: {solver.Value(suffering_per_person[person_idx])}')
+
+    if people[person_idx]['prefers_longer_sleep']:
+        longsleep_suffers.append(solver.Value(suffering_per_person[person_idx]))
+    else:
+        normal_suffers.append(solver.Value(suffering_per_person[person_idx]))
+
 
 print('--------------------------')
 if errors:
@@ -255,4 +352,9 @@ if errors:
     for e in errors:
         print(f' - {e}')
 
-print(f'Delta: {solver.Value(delta)} (~{solver.Value(delta)/100/60*2:0.03} hrs)')
+print(f'Delta: {solver.Value(delta)*2} (~{solver.Value(delta)/100/60*2:0.03} hrs)')
+
+if normal_suffers:
+    print(f'Avg normal suffer: {sum(normal_suffers) // len(normal_suffers)}')
+if longsleep_suffers:
+    print(f'Avg longsleep suffer: {sum(longsleep_suffers) // len(longsleep_suffers)}')
