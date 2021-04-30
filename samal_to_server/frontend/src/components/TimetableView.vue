@@ -47,20 +47,20 @@ export default {
       const tasks = Object.values(this.$store.state.tasks);
 
       // Calculate height of vertical task name stack
-      const canvasWidth = canvas.clientWidth;
-      const labelVMargin = 3;
-      const labelHPadding = 3;
-      let timeBarWidth = 64;
+      const pixelMult = devicePixelRatio;
+      const canvasWidth = canvas.clientWidth * pixelMult;
+      const labelVMargin = 3 * pixelMult;
+      const labelHPadding = 3 * pixelMult;
+      let timeBarWidth = 64 * pixelMult;
       const taskWidth = parseInt((canvasWidth - timeBarWidth) / tasks.length);
       timeBarWidth = canvasWidth - taskWidth * tasks.length;
 
-      ctx.font = '12px sans';
+      ctx.font = `${12 * pixelMult}px sans`;
       const taskNameLengths = tasks.map(t => ctx.measureText(t.name).width);
 
       let taskStackHeight = 7;
       for (let stackHeight = 1; stackHeight <= 7; stackHeight++) {
         let works = true;
-        // console.log(`trying stack of ${stackHeight}`);
         for (let i = stackHeight; i < taskNameLengths.length; i++) {
           if (taskNameLengths[i] + 2 * labelHPadding > stackHeight * taskWidth) {
             works = false;
@@ -74,11 +74,11 @@ export default {
       }
 
       // Various constants
-      const pillarWidth = 4;
-      const labelOffset = 3;
-      const labelTextOffset = 16;
-      const bottomPadding = 4;
-      const heightPerLabel = 23;
+      const pillarWidth = 4 * pixelMult;
+      const labelOffset = 3 * pixelMult;
+      const labelTextOffset = 16 * pixelMult;
+      const bottomPadding = 4 * pixelMult;
+      const heightPerLabel = 23 * pixelMult;
       const headerHeight = heightPerLabel * taskStackHeight + bottomPadding;
 
       canvas.width = canvasWidth;
@@ -91,9 +91,9 @@ export default {
         ctx.fillStyle = `rgb(80, 80, 80)`;
         const pillarX = parseInt(timeBarWidth + (i + 0.5) * taskWidth - pillarWidth / 2);
         ctx.fillRect(
-          pillarX - 1,
+          pillarX - pixelMult,
           heightPerLabel * heightIdx + labelVMargin + heightPerLabel - 2 * labelVMargin,
-          pillarWidth + 2,
+          pillarWidth + 2 * pixelMult,
           headerHeight
         );
 
@@ -101,10 +101,10 @@ export default {
         const labelX = parseInt(timeBarWidth + (i + 1) * taskWidth - 2 * labelHPadding - taskNameLengths[i]);
         const labelWidth = parseInt(taskNameLengths[i] + 2 * labelHPadding);
         ctx.fillRect(
-          labelX - 1,
-          heightPerLabel * heightIdx + labelVMargin - 1,
-          labelWidth + 2,
-          heightPerLabel - 2 * labelVMargin + 2
+          labelX,
+          heightPerLabel * heightIdx + labelVMargin - pixelMult,
+          labelWidth,
+          heightPerLabel - 2 * labelVMargin + 2 * pixelMult
         );
 
         // Pillar
@@ -118,9 +118,9 @@ export default {
 
         // Label BG
         ctx.fillRect(
-          labelX,
+          labelX + pixelMult,
           heightPerLabel * heightIdx + labelVMargin,
-          labelWidth,
+          labelWidth - 2 * pixelMult,
           heightPerLabel - 2 * labelVMargin
         );
       });
@@ -128,7 +128,7 @@ export default {
       // Draw task labels
       ctx.fillStyle = 'rgb(0, 0, 0)';
       ctx.textAlign = "end";
-      ctx.font = '12px sans';
+      ctx.font = `${12 * pixelMult}px sans`;
       tasks.forEach((task, i) => {
         const heightIdx = taskStackHeight - (i % taskStackHeight) - 1;
         ctx.fillText(
@@ -137,9 +137,6 @@ export default {
           labelTextOffset + heightPerLabel * heightIdx
         );
       });
-
-      // ctx.fillStyle = 'rgb(0, 0, 0)';
-      // ctx.fillRect(timeBarWidth, 0, canvasWidth - timeBarWidth, headerHeight);
     },
     renderTimetableContents() {
       const canvas = document.getElementById('timetable_contents');
@@ -152,22 +149,23 @@ export default {
       const timeHours = (timeEnd - timeStart) / 1000 / 60 / 60;
 
       // Various constants
-      const timebarHourHeight = 56;
+      const pixelMult = devicePixelRatio;
+      const timebarHourHeight = 56 * pixelMult;
       const timebar30mHeight = parseInt(timebarHourHeight / 2);
       const timebar15mHeight = parseInt(timebarHourHeight / 4);
-      const timebarFirstOffset = 15;
-      const timebarOffset = 32;
-      const timebarTextPadding = 3;
-      const bottomPadding = 10;
+      const timebarFirstOffset = 15 * pixelMult;
+      const timebarOffset = 32 * pixelMult;
+      const timebarTextPadding = 3 * pixelMult;
+      const bottomPadding = 10 * pixelMult;
 
       const canvasHeight = timebarOffset + timebarTextPadding + timebarHourHeight * timeHours + bottomPadding;
-      const canvasWidth = canvas.clientWidth;
-      let timeBarWidth = 64;
+      const canvasWidth = canvas.clientWidth * pixelMult;
+      let timeBarWidth = 64 * pixelMult;
       const taskWidth = parseInt((canvasWidth - timeBarWidth) / tasks.length);
       timeBarWidth = canvasWidth - taskWidth * tasks.length;
-      const pillarWidth = 4;
-      const bubblePadding = 2;
-      const bubbleBorder = 3;
+      const pillarWidth = 4 * pixelMult;
+      const bubblePadding = 2 * pixelMult;
+      const bubbleBorder = 3 * pixelMult;
 
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
@@ -209,7 +207,7 @@ export default {
         ctx.stroke();
       }
       ctx.strokeStyle = 'rgb(200, 200, 200)';
-      ctx.setLineDash([3, 7]);
+      ctx.setLineDash([3 * pixelMult, 7 * pixelMult]);
       for (let i = 0; i < timeHours; i++) {
         ctx.beginPath();
         ctx.moveTo(
@@ -241,7 +239,7 @@ export default {
       // Draw first date
       ctx.fillStyle = 'rgb(0, 0, 0)';
       ctx.textAlign = "end";
-      ctx.font = '10px sans';
+      ctx.font = `${10 * pixelMult}px sans`;
       let curDate = new Date(timeStart).toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[0];
       ctx.fillText(curDate, timeBarWidth - 3, timebarFirstOffset);
 
@@ -250,10 +248,10 @@ export default {
         const nextDate = new Date(timeStart + i * 1000 * 60 * 60);
         const nextDateFormatted = nextDate.toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[0];
         if (nextDateFormatted != curDate) {
-          ctx.font = '10px sans';
+          ctx.font = `${10 * pixelMult}px sans`;
           ctx.fillText(nextDateFormatted, timeBarWidth - 3, timebarOffset + i * timebarHourHeight);
         } else {
-          ctx.font = '12px sans';
+          ctx.font = `${12 * pixelMult}px sans`;
           ctx.fillText(
             `${zpad(nextDate.getHours())}:${zpad(nextDate.getMinutes())}`,
             timeBarWidth - 3, timebarOffset + i * timebarHourHeight
@@ -269,9 +267,9 @@ export default {
 
         // Pillar shadow
         ctx.fillRect(
-          pillarX - 1,
+          pillarX - pixelMult,
           0,
-          pillarWidth + 2,
+          pillarWidth + 2 * pixelMult,
           canvasHeight
         );
 
@@ -296,8 +294,8 @@ export default {
           // Bubble base
           ctx.fillStyle = assignment.assigned ? '#C20E20' : '#777';
           ctx.shadowColor = assignment.assigned ? '#AA0C1CEE' : '#111';
-          ctx.shadowBlur = 4;
-          ctx.shadowOffsetY = 2;
+          ctx.shadowBlur = 4 * pixelMult;
+          ctx.shadowOffsetY = 2 * pixelMult;
           ctx.fillRect(
             bubbleX,
             bubbleY,
@@ -317,13 +315,13 @@ export default {
           ctx.shadowColor = 'transparent';
 
           // Assigned ID
-          ctx.font = "bold 18px rubik";
+          ctx.font = `bold ${18 * pixelMult}px rubik`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillStyle = '#fff';
           ctx.shadowColor = '#222';
-          ctx.shadowBlur = 4;
-          ctx.shadowOffsetY = 1;
+          ctx.shadowBlur = 4 * pixelMult;
+          ctx.shadowOffsetY = 1 * pixelMult;
           ctx.fillText(assignment.assigned || "-", bubbleX + bubbleW / 2, bubbleY + bubbleH / 2);
           ctx.shadowColor = 'transparent';
           ctx.shadowOffsetY = 0;
