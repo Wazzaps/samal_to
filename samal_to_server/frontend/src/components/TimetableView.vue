@@ -152,18 +152,19 @@ export default {
       const timeHours = (timeEnd - timeStart) / 1000 / 60 / 60;
 
       // Various constants
-      const canvasHeight = 1300;
-      const canvasWidth = canvas.clientWidth;
-      let timeBarWidth = 64;
-      const taskWidth = parseInt((canvasWidth - timeBarWidth) / tasks.length);
-      timeBarWidth = canvasWidth - taskWidth * tasks.length;
-
       const timebarHourHeight = 56;
       const timebar30mHeight = parseInt(timebarHourHeight / 2);
       const timebar15mHeight = parseInt(timebarHourHeight / 4);
       const timebarFirstOffset = 15;
       const timebarOffset = 32;
       const timebarTextPadding = 3;
+      const bottomPadding = 10;
+
+      const canvasHeight = timebarOffset + timebarTextPadding + timebarHourHeight * timeHours + bottomPadding;
+      const canvasWidth = canvas.clientWidth;
+      let timeBarWidth = 64;
+      const taskWidth = parseInt((canvasWidth - timeBarWidth) / tasks.length);
+      timeBarWidth = canvasWidth - taskWidth * tasks.length;
       const pillarWidth = 4;
       const bubblePadding = 2;
       const bubbleBorder = 3;
@@ -245,7 +246,7 @@ export default {
       ctx.fillText(curDate, timeBarWidth - 3, timebarFirstOffset);
 
       // Draw time labels
-      for (let i = 0; i < timeHours; i++) {
+      for (let i = 0; i < timeHours + 1; i++) {
         const nextDate = new Date(timeStart + i * 1000 * 60 * 60);
         const nextDateFormatted = nextDate.toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[0];
         if (nextDateFormatted != curDate) {

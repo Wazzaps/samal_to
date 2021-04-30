@@ -204,7 +204,7 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 24+8 + (2/6), duration: 60 + 40, assigned: null },
+          0: { start: 24+8 + (2/6), duration: (60 + 40) / 60, assigned: null },
         },
       },
       11: {
