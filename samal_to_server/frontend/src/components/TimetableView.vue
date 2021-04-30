@@ -315,6 +315,12 @@ export default {
           ctx.shadowColor = 'transparent';
 
           // Assigned ID
+          let assignedPerson = assignment.assigned;
+          if (assignedPerson) {
+            assignedPerson = this.$store.state.people[assignedPerson].num;
+          } else {
+            assignedPerson = "-";
+          }
           ctx.font = `bold ${18 * pixelMult}px rubik`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -322,7 +328,7 @@ export default {
           ctx.shadowColor = '#222';
           ctx.shadowBlur = 4 * pixelMult;
           ctx.shadowOffsetY = 1 * pixelMult;
-          ctx.fillText(assignment.assigned || "-", bubbleX + bubbleW / 2, bubbleY + bubbleH / 2);
+          ctx.fillText(assignedPerson, bubbleX + bubbleW / 2, bubbleY + bubbleH / 2);
           ctx.shadowColor = 'transparent';
           ctx.shadowOffsetY = 0;
         }
@@ -340,6 +346,20 @@ export default {
 #timetable_contents, #timetable_header {
   width: 100%;
   display: block;
+}
+
+#timetable_header {
+  position: sticky;
+  top: 10px;
+  background: #fff;
+  box-shadow: 0 -200px 0 200px #fff;
+  z-index: -10;
+}
+
+#timetable_contents {
+  position: relative;
+  z-index: -11;
+  background: #fff;
 }
 
 </style>

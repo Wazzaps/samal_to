@@ -146,10 +146,10 @@ export default {
     },
 
     formatShiftTime(shift) {
-      const startHr = parseInt(shift.start / 4);
-      const startMin = (shift.start % 4) * 15;
-      const endHr = parseInt((shift.start + shift.duration) / 4);
-      const endMin = ((shift.start + shift.duration) % 4) * 15;
+      const startHr = parseInt(shift.start);
+      const startMin = parseInt((shift.start * 60) % 60);
+      const endHr = parseInt(shift.start + shift.duration);
+      const endMin = parseInt(((shift.start + shift.duration) * 60) % 60);
       return `${startHr}:${startMin.toString().padStart(2, '0')} - ${endHr}:${endMin.toString().padStart(2, '0')}`;
     },
 
