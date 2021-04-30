@@ -54,6 +54,8 @@
     <!-- Assignments -->
     <h3>Assigned shifts</h3>
 
+    <em v-if="assignedShifts.length == 0">No shifts assigned</em>
+
     <b-list-group class="mb-3">
       <b-list-group-item v-for="(shift, shiftId) in assignedShifts" :key="shiftId">
         <div class="d-flex flex-column">
