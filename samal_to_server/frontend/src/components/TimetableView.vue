@@ -6,7 +6,6 @@
       </b-button>
     </center> -->
 
-    <canvas id="timetable_header"/>
     <canvas id="timetable_contents"/>
 
     <b-modal id="timerange-picker" title="Select date &amp; time range">
@@ -36,113 +35,40 @@ export default {
       this.$store.commit('increment')
     },
     renderTimetable() {
-      this.renderTimetableHeader();
-      this.renderTimetableContents();
-
-    },
-    renderTimetableHeader() {
-      const canvas = document.getElementById('timetable_header');
-      const ctx = canvas.getContext('2d');
-
-      const tasks = Object.values(this.$store.state.tasks);
-
-      // Calculate height of vertical task name stack
-      const pixelMult = devicePixelRatio;
-      const canvasWidth = canvas.clientWidth * pixelMult;
-      const labelVMargin = 3 * pixelMult;
-      const labelHPadding = 3 * pixelMult;
-      let timeBarWidth = 64 * pixelMult;
-      const taskWidth = parseInt((canvasWidth - timeBarWidth) / tasks.length);
-      timeBarWidth = canvasWidth - taskWidth * tasks.length;
-
-      ctx.font = `${12 * pixelMult}px sans`;
-      const taskNameLengths = tasks.map(t => ctx.measureText(t.name).width);
-
-      let taskStackHeight = 7;
-      for (let stackHeight = 1; stackHeight <= 7; stackHeight++) {
-        let works = true;
-        for (let i = stackHeight; i < taskNameLengths.length; i++) {
-          if (taskNameLengths[i] + 2 * labelHPadding > stackHeight * taskWidth) {
-            works = false;
-            break;
+      const tasks = Object.entries(this.$store.state.tasks);
+      let tracks = [];
+      tasks.forEach(([taskId, task]) => {
+        Object.values(task.shifts).forEach(shift => {
+          function trackIsAvailable(track, start, duration) {
+            return track.every(([_, trackShift]) => {
+              // No overlapping shifts in this track
+              return !((shift.start + shift.duration) > trackShift.start && (trackShift.start + trackShift.duration) > shift.start)
+            });
           }
-        }
-        if (works) {
-          taskStackHeight = stackHeight;
-          break;
-        }
-      }
-
-      // Various constants
-      const pillarWidth = 4 * pixelMult;
-      const labelOffset = 3 * pixelMult;
-      const labelTextOffset = 16 * pixelMult;
-      const bottomPadding = 4 * pixelMult;
-      const heightPerLabel = 23 * pixelMult;
-      const headerHeight = heightPerLabel * taskStackHeight + bottomPadding;
-
-      canvas.width = canvasWidth;
-      canvas.height = headerHeight;
-
-      // Draw task label BGs
-      tasks.forEach((task, i) => {
-        const heightIdx = taskStackHeight - (i % taskStackHeight) - 1;
-        // Pillar Shadow
-        ctx.fillStyle = `rgb(80, 80, 80)`;
-        const pillarX = parseInt(timeBarWidth + (i + 0.5) * taskWidth - pillarWidth / 2);
-        ctx.fillRect(
-          pillarX - pixelMult,
-          heightPerLabel * heightIdx + labelVMargin + heightPerLabel - 2 * labelVMargin,
-          pillarWidth + 2 * pixelMult,
-          headerHeight
-        );
-
-        // Label BG Shadow
-        const labelX = parseInt(timeBarWidth + (i + 1) * taskWidth - 2 * labelHPadding - taskNameLengths[i]);
-        const labelWidth = parseInt(taskNameLengths[i] + 2 * labelHPadding);
-        ctx.fillRect(
-          labelX,
-          heightPerLabel * heightIdx + labelVMargin - pixelMult,
-          labelWidth,
-          heightPerLabel - 2 * labelVMargin + 2 * pixelMult
-        );
-
-        // Pillar
-        ctx.fillStyle = `#eeeeee`;
-        ctx.fillRect(
-          pillarX,
-          heightPerLabel * heightIdx + labelVMargin + heightPerLabel - 2 * labelVMargin,
-          pillarWidth,
-          headerHeight
-        );
-
-        // Label BG
-        ctx.fillRect(
-          labelX + pixelMult,
-          heightPerLabel * heightIdx + labelVMargin,
-          labelWidth - 2 * pixelMult,
-          heightPerLabel - 2 * labelVMargin
-        );
+          for (const track of tracks) {
+            if (trackIsAvailable(track, shift.start, shift.duration)) {
+              track.push([taskId, shift]);
+              return;
+            }
+          }
+          tracks.push([[taskId, shift]]);
+        });
       });
 
-      // Draw task labels
-      ctx.fillStyle = 'rgb(0, 0, 0)';
-      ctx.textAlign = "end";
-      ctx.font = `${12 * pixelMult}px sans`;
-      tasks.forEach((task, i) => {
-        const heightIdx = taskStackHeight - (i % taskStackHeight) - 1;
-        ctx.fillText(
-          task.name,
-          timeBarWidth + (i + 1) * taskWidth - labelHPadding,
-          labelTextOffset + heightPerLabel * heightIdx
-        );
-      });
+      // Sort shifts in track by start time, to prevent inconsistent shadow overlap
+      tracks.forEach(track => {
+        track.sort(([_1, shiftA], [_2, shiftB]) => {
+          return shiftA.start > shiftB.start ? 1 : -1;
+        });
+      })
+
+      this.renderTimetableContents(tracks);
     },
-    renderTimetableContents() {
+    renderTimetableContents(tracks) {
       const canvas = document.getElementById('timetable_contents');
       const ctx = canvas.getContext('2d');
 
-      const tasks = Object.values(this.$store.state.tasks);
+      const tasks = this.$store.state.tasks;
 
       const timeStart = new Date('2020-12-17T12:00:00').getTime();
       const timeEnd = new Date('2020-12-18T12:00:00').getTime();
@@ -161,10 +87,10 @@ export default {
       const canvasHeight = timebarOffset + timebarTextPadding + timebarHourHeight * timeHours + bottomPadding;
       const canvasWidth = canvas.clientWidth * pixelMult;
       let timeBarWidth = 64 * pixelMult;
-      const taskWidth = parseInt((canvasWidth - timeBarWidth) / tasks.length);
-      timeBarWidth = canvasWidth - taskWidth * tasks.length;
+      const trackWidth = parseInt((canvasWidth - timeBarWidth) / tracks.length);
+      timeBarWidth = canvasWidth - trackWidth * tracks.length;
       const pillarWidth = 4 * pixelMult;
-      const bubblePadding = 2 * pixelMult;
+      const bubblePadding = 4 * pixelMult;
       const bubbleBorder = 3 * pixelMult;
 
       canvas.width = canvasWidth;
@@ -177,22 +103,23 @@ export default {
       ctx.fillRect(0, 0, timeBarWidth, canvasHeight);
 
       // Draw timebar lines
-      ctx.strokeStyle = 'rgb(0, 0, 0)';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgb(60, 60, 60)';
+      ctx.lineWidth = 2 * pixelMult;
       for (let i = 0; i < timeHours + 1; i++) {
         ctx.beginPath();
         ctx.setLineDash([]);
         ctx.moveTo(
           0,
-          0.5 + timebarOffset + timebarTextPadding + i * timebarHourHeight
+          timebarOffset + timebarTextPadding + i * timebarHourHeight
         );
         ctx.lineTo(
           canvasWidth,
-          0.5 + timebarOffset + timebarTextPadding + i * timebarHourHeight
+          timebarOffset + timebarTextPadding + i * timebarHourHeight
         );
         ctx.stroke();
       }
-      ctx.strokeStyle = 'rgb(200, 200, 200)';
+      ctx.lineWidth = 1 * pixelMult;
+      ctx.strokeStyle = 'rgb(120, 120, 120)';
       for (let i = 0; i < timeHours; i++) {
         ctx.beginPath();
         ctx.setLineDash([]);
@@ -206,7 +133,7 @@ export default {
         );
         ctx.stroke();
       }
-      ctx.strokeStyle = 'rgb(200, 200, 200)';
+      ctx.strokeStyle = 'rgb(120, 120, 120)';
       ctx.setLineDash([3 * pixelMult, 7 * pixelMult]);
       for (let i = 0; i < timeHours; i++) {
         ctx.beginPath();
@@ -261,39 +188,39 @@ export default {
       }
 
       // Draw task pillars
-      for (let i = 0; i < tasks.length; i++) {
-        const pillarX = parseInt(timeBarWidth + (i + 0.5) * taskWidth - pillarWidth / 2);
-        ctx.fillStyle = `rgb(80, 80, 80)`;
+      // for (let i = 0; i < tracks.length; i++) {
+      //   const pillarX = parseInt(timeBarWidth + (i + 0.5) * trackWidth - pillarWidth / 2);
+      //   ctx.fillStyle = `rgb(80, 80, 80)`;
 
-        // Pillar shadow
-        ctx.fillRect(
-          pillarX - pixelMult,
-          0,
-          pillarWidth + 2 * pixelMult,
-          canvasHeight
-        );
+      //   // Pillar shadow
+      //   ctx.fillRect(
+      //     pillarX - pixelMult,
+      //     0,
+      //     pillarWidth + 2 * pixelMult,
+      //     canvasHeight
+      //   );
 
-        // Pillar
-        ctx.fillStyle = `#eeeeee`;
-        ctx.fillRect(
-          pillarX,
-          0,
-          pillarWidth,
-          canvasHeight
-        );
-      }
+      //   // Pillar
+      //   ctx.fillStyle = `#eeeeee`;
+      //   ctx.fillRect(
+      //     pillarX,
+      //     0,
+      //     pillarWidth,
+      //     canvasHeight
+      //   );
+      // }
 
       // Draw task bubbles
-      for (let i = 0; i < tasks.length; i++) {
-        for (const assignment of Object.values(tasks[i].shifts)) {
-          const bubbleX = parseInt(timeBarWidth + i * taskWidth + bubblePadding);
-          const bubbleY = parseInt(timebarOffset + timebarTextPadding + (assignment.start - 12) * timebarHourHeight);
-          const bubbleW = parseInt(taskWidth - 2 * bubblePadding);
-          const bubbleH = parseInt(assignment.duration * timebarHourHeight);
+      for (let i = 0; i < tracks.length; i++) {
+        for (const [taskId, shift] of tracks[i]) {
+          const bubbleX = parseInt(timeBarWidth + i * trackWidth + bubblePadding);
+          const bubbleY = parseInt(timebarOffset + timebarTextPadding + (shift.start - 12) * timebarHourHeight);
+          const bubbleW = parseInt(trackWidth - 2 * bubblePadding);
+          const bubbleH = parseInt(shift.duration * timebarHourHeight);
 
           // Bubble base
-          ctx.fillStyle = assignment.assigned ? '#C20E20' : '#777';
-          ctx.shadowColor = assignment.assigned ? '#AA0C1CEE' : '#111';
+          ctx.fillStyle = shift.assigned ? '#C20E20' : '#777';
+          ctx.shadowColor = shift.assigned ? '#AA0C1CEE' : '#111';
           ctx.shadowBlur = 4 * pixelMult;
           ctx.shadowOffsetY = 2 * pixelMult;
           ctx.fillRect(
@@ -305,7 +232,7 @@ export default {
           ctx.shadowColor = 'transparent';
 
           // Bubble bottom border
-          ctx.fillStyle = assignment.assigned ? '#7c0b17' : '#444';
+          ctx.fillStyle = shift.assigned ? '#7c0b17' : '#444';
           ctx.fillRect(
             bubbleX,
             bubbleY + bubbleH - bubbleBorder,
@@ -314,23 +241,41 @@ export default {
           );
           ctx.shadowColor = 'transparent';
 
-          // Assigned ID
-          let assignedPerson = assignment.assigned;
-          if (assignedPerson) {
-            assignedPerson = this.$store.state.people[assignedPerson].num;
-          } else {
-            assignedPerson = "-";
+          // Task label
+          const numFontSize = 18 * pixelMult;
+          let taskNameFontSize = 14;
+          for (; taskNameFontSize > 8; taskNameFontSize--) {
+            ctx.font = `${taskNameFontSize * pixelMult}px rubik, sans`;
+            if (ctx.measureText(tasks[taskId].name).width <= bubbleH - numFontSize) {
+              break;
+            }
           }
-          ctx.font = `bold ${18 * pixelMult}px rubik`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillStyle = '#fff';
           ctx.shadowColor = '#222';
           ctx.shadowBlur = 4 * pixelMult;
+          const textX = bubbleX + bubbleW / 2;
+          const textY = bubbleY + bubbleH / 2;
+          ctx.save();
+          ctx.translate(textX, textY);
+          ctx.rotate(-Math.PI/2);
+          ctx.fillText(tasks[taskId].name, 0, 0);
+          ctx.restore();
+
+          // Assigned ID
+          let assignedPerson = shift.assigned;
+          if (assignedPerson) {
+            assignedPerson = this.$store.state.people[assignedPerson].num;
+          } else {
+            assignedPerson = "-";
+          }
+          ctx.font = `bold ${numFontSize}px rubik, sans`;
           ctx.shadowOffsetY = 1 * pixelMult;
-          ctx.fillText(assignedPerson, bubbleX + bubbleW / 2, bubbleY + bubbleH / 2);
+          ctx.fillText(assignedPerson, bubbleX + bubbleW / 2, bubbleY + numFontSize);
           ctx.shadowColor = 'transparent';
           ctx.shadowOffsetY = 0;
+          ctx.shadowOffsetX = 0;
         }
       }
     }

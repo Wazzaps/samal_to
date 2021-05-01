@@ -121,8 +121,8 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: ["0"],
         shifts: {
-          // 0: { start: 15, duration: 3.5, assigned: null },
-          // 1: { start: 15, duration: 3.5, assigned: null },
+          0: { start: 15, duration: 3.5, assigned: null },
+          1: { start: 15, duration: 3.5, assigned: null },
           2: { start: 14.5, duration: 5, assigned: null },
           3: { start: 24+6.5, duration: 5, assigned: null },
           4: { start: 24+7, duration: 4.5, assigned: null },
@@ -165,8 +165,8 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 12, duration: 4, assigned: null },
-          1: { start: 16, duration: 4, assigned: null },
+          0: { start: 12, duration: 4, assigned: "0" },
+          1: { start: 16, duration: 4, assigned: "2" },
           2: { start: 20, duration: 1, assigned: null },
         },
       },
