@@ -1,0 +1,87 @@
+{
+    "people": [
+        {
+            "restricted_tasks": [],
+            "assigned_tasks": [],
+            "prefers_longer_sleep": false
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+    ],
+    "shifts": [
+        { "time": 720, "duration": 240, "cost": 100 },
+        { "time": 960, "duration": 180, "cost": 100 },
+        { "time": 1800, "duration": 60, "cost": 100 },
+        { "time": 2100, "duration": 60, "cost": 100 },
+
+        { "time": 1140, "duration": 180, "cost": 100 },
+        { "time": 1320, "duration": 240, "cost": 100 },
+        { "time": 1560, "duration": 240, "cost": 100 },
+        { "time": 1800, "duration": 60, "cost": 100 },
+
+        { "time": 900, "duration": 210, "cost": 70 },
+        { "time": 900, "duration": 210, "cost": 70 },
+        { "time": 870, "duration": 300, "cost": 70 },
+        { "time": 1830, "duration": 300, "cost": 70 },
+        { "time": 1860, "duration": 270, "cost": 70 },
+        { "time": 1860, "duration": 270, "cost": 70 },
+
+        { "time": 1260, "duration": 120, "cost": 100 },
+
+        { "time": 1200, "duration": 240, "cost": 100 },
+        { "time": 1440, "duration": 240, "cost": 100 },
+        { "time": 1680, "duration": 60, "cost": 100 },
+
+        { "time": 1850, "duration": 130, "cost": 100 },
+        { "time": 1740, "duration": 120, "cost": 100 },
+
+        { "time": 720, "duration": 240, "cost": 100 },
+        { "time": 960, "duration": 240, "cost": 100 },
+        { "time": 1200, "duration": 60, "cost": 100 },
+
+        { "time": 1680, "duration": 120, "cost": 100 },
+
+        { "time": 1800, "duration": 240, "cost": 100 },
+        { "time": 2040, "duration": 120, "cost": 100 },
+
+        { "time": 1860, "duration": 180, "cost": 100 },
+
+        { "time": 1940, "duration": 100, "cost": 100 },
+
+        { "time": 1200, "duration": 240, "cost": 100 },
+        { "time": 1440, "duration": 240, "cost": 100 },
+        { "time": 1680, "duration": 60, "cost": 100 },
+
+        { "time": 720, "duration": 240, "cost": 100 },
+        { "time": 960, "duration": 240, "cost": 100 },
+        { "time": 1200, "duration": 240, "cost": 100 },
+        { "time": 1440, "duration": 240, "cost": 100 },
+        { "time": 1680, "duration": 240, "cost": 100 },
+        { "time": 1920, "duration": 240, "cost": 100 }
+    ],
+    "settings": {
+        "min_rest_per_day": 360,
+        "longsleep_min_rest_per_day": 480,
+        "overtime_interval_min": 15,
+        "overtime_threshold": 12,
+        "max_overtime_intervals": 8,
+        "longsleep_max_overtime_intervals": 12,
+        "suffer_per_overtime_min": 5,
+        "longsleep_suffer_per_overtime_min": 0,
+        "timeout": 3
+    }
+
+}
