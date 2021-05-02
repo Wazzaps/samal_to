@@ -79,7 +79,7 @@ export default {
 
       // Various constants
       const pixelMult = devicePixelRatio;
-      const timebarHourHeight = 56 * pixelMult;
+      const timebarHourHeight = 60 * pixelMult;
       const timebar30mHeight = parseInt(timebarHourHeight / 2);
       const timebar15mHeight = parseInt(timebarHourHeight / 4);
       const timebarFirstOffset = 15 * pixelMult;

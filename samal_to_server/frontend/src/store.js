@@ -147,8 +147,8 @@ const store = new Vuex.Store({
         shifts: {
           0: { start: 12, duration: 4, assigned: null },
           1: { start: 16, duration: 3, assigned: null },
-          2: { start: 24+6, duration: 1, assigned: null },
-          3: { start: 24+11, duration: 1, assigned: null },
+          2: { start: 24, duration: 2, assigned: null },
+          3: { start: 24+2, duration: 2, assigned: null },
         },
       },
       1: {
@@ -157,10 +157,10 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 19, duration: 3, assigned: null },
-          1: { start: 22, duration: 4, assigned: null },
-          2: { start: 24+2, duration: 4, assigned: null },
-          3: { start: 24+6, duration: 1, assigned: null },
+          0: { start: 13, duration: 4, assigned: null },
+          1: { start: 14, duration: 3, assigned: null },
+          2: { start: 24+5, duration: 1, assigned: null },
+          3: { start: 24+6, duration: 4, assigned: null },
         },
       },
       2: {
@@ -169,12 +169,12 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 15, duration: 3.5, assigned: null },
-          1: { start: 15, duration: 3.5, assigned: null },
+          0: { start: 16, duration: 3.5, assigned: null },
+          1: { start: 16, duration: 3.5, assigned: null },
           2: { start: 14.5, duration: 5, assigned: null },
-          3: { start: 24+6.5, duration: 5, assigned: null },
-          4: { start: 24+7, duration: 4.5, assigned: null },
-          5: { start: 24+7, duration: 4.5, assigned: null },
+          3: { start: 24+6.25, duration: 5, assigned: null },
+          4: { start: 24+7, duration: 4.75, assigned: null },
+          5: { start: 24+7, duration: 4.75, assigned: null },
         },
       },
       3: {
@@ -183,7 +183,7 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 21, duration: 2, assigned: null },
+          0: { start: 23, duration: 2, assigned: null },
         },
       },
       4: {
@@ -192,9 +192,9 @@ const store = new Vuex.Store({
         mustHaveTags: ["1"],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 20, duration: 4, assigned: null },
-          1: { start: 24, duration: 4, assigned: null },
-          2: { start: 24+4, duration: 1, assigned: null },
+          0: { start: 17, duration: 2, assigned: null },
+          1: { start: 24+6, duration: 2, assigned: null },
+          2: { start: 24+10, duration: 2, assigned: null },
         },
       },
       5: {
@@ -203,89 +203,13 @@ const store = new Vuex.Store({
         mustHaveTags: ["1"],
         mustNotHaveTags: ["0"],
         shifts: {
-          0: { start: 24+6+(5/6), duration: 2 + (1/6), assigned: null },
-          1: { start: 24+5, duration: 2, assigned: null },
+          0: { start: 24+8.5, duration: 1.5, assigned: null },
+          1: { start: 24+10, duration: 1.5, assigned: null },
         },
       },
-      6: {
-        name: "Task A",
-        description: "\n",
-        mustHaveTags: [],
-        mustNotHaveTags: [],
-        shifts: {
-          0: { start: 12, duration: 4, assigned: null },
-          1: { start: 16, duration: 4, assigned: null },
-          2: { start: 20, duration: 1, assigned: null },
-        },
-      },
-      7: {
-        name: "Task B",
-        description: "\n",
-        mustHaveTags: [],
-        mustNotHaveTags: [],
-        shifts: {
-          0: { start: 24+4, duration: 2, assigned: null },
-        },
-      },
-      8: {
-        name: "Task C",
-        description: "\n",
-        mustHaveTags: [],
-        mustNotHaveTags: [],
-        shifts: {
-          0: { start: 24+6, duration: 4, assigned: null },
-          1: { start: 24+10, duration: 2, assigned: null },
-        },
-      },
-      9: {
-        name: "Task D",
-        description: "\n",
-        mustHaveTags: [],
-        mustNotHaveTags: [],
-        shifts: {
-          0: { start: 24+7, duration: 3, assigned: null },
-        },
-      },
-      10: {
-        name: "Task E",
-        description: "\n",
-        mustHaveTags: [],
-        mustNotHaveTags: [],
-        shifts: {
-          0: { start: 24+8 + (2/6), duration: (60 + 40) / 60, assigned: null },
-        },
-      },
-      11: {
-        name: "Task F",
-        description: "\n",
-        mustHaveTags: [],
-        mustNotHaveTags: [],
-        shifts: {
-          0: { start: 20, duration: 4, assigned: null },
-          1: { start: 24, duration: 4, assigned: null },
-          2: { start: 24+4, duration: 1, assigned: null },
-        },
-      },
-      12: {
-        name: "Task G",
-        description: "\n",
-        mustHaveTags: [],
-        mustNotHaveTags: [],
-        shifts: {
-          0: { start: 12, duration: 4, assigned: null },
-          1: { start: 16, duration: 4, assigned: null },
-          2: { start: 20, duration: 4, assigned: null },
-          3: { start: 24, duration: 4, assigned: null },
-          4: { start: 24+4, duration: 4, assigned: null },
-          5: { start: 24+8, duration: 4, assigned: null },
-        },
-      },
-    }
+    },
   },
   mutations: {
-    // increment (state) {
-    //   state.count++
-    // }
     personAddTag(state, [personId, tagId]) {
       state.people[personId].tags.push(tagId);
     },
