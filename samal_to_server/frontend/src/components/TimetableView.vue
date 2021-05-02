@@ -6,6 +6,8 @@
       </b-button>
     </center> -->
 
+    <b-button class="mb-3 float-right" variant="primary" @click="autoSolve" :disabled="autoSolveDisabled">Auto Assign</b-button>
+
     <canvas id="timetable_contents"/>
 
     <b-modal id="timerange-picker" title="Select date &amp; time range">
@@ -30,10 +32,10 @@
 
 <script>
 export default {
+  data: () => ({
+    autoSolveDisabled: false,
+  }),
   methods: {
-    increment () {
-      this.$store.commit('increment')
-    },
     renderTimetable() {
       const tasks = Object.entries(this.$store.state.tasks);
       let tracks = [];
@@ -68,6 +70,7 @@ export default {
       const canvas = document.getElementById('timetable_contents');
       const ctx = canvas.getContext('2d');
 
+      const people = this.$store.state.people;
       const tasks = this.$store.state.tasks;
 
       const timeStart = new Date('2020-12-17T12:00:00').getTime();
@@ -211,6 +214,10 @@ export default {
       // }
 
       // Draw task bubbles
+      const bubbleColors = ["#C20E20", "#FFBAA4", "#006ECB", "#FFDBF0", "#00675E", "#68E7E5"];
+      const bubbleTextColors = ["#fff", "#000", "#fff", "#000", "#fff", "#000"];
+      const bubbleTextShadowColors = ["#222", "#ffffff44", "#222", "#ffffff44", "#222", "#ffffff44"];
+      const bubbleShadowColors = ["#AA0C1CEE", "#c57e68EE", "#006CC7EE", "#c7afb3EE", "#00675EEE", "#59b6b4EE"];
       for (let i = 0; i < tracks.length; i++) {
         for (const [taskId, shift] of tracks[i]) {
           const bubbleX = parseInt(timeBarWidth + i * trackWidth + bubblePadding);
@@ -219,8 +226,8 @@ export default {
           const bubbleH = parseInt(shift.duration * timebarHourHeight);
 
           // Bubble base
-          ctx.fillStyle = shift.assigned ? '#C20E20' : '#777';
-          ctx.shadowColor = shift.assigned ? '#AA0C1CEE' : '#111';
+          ctx.fillStyle = shift.assigned ? bubbleColors[people[shift.assigned].ident_color] : '#777';
+          ctx.shadowColor = shift.assigned ? bubbleShadowColors[people[shift.assigned].ident_color] : '#111';
           ctx.shadowBlur = 4 * pixelMult;
           ctx.shadowOffsetY = 2 * pixelMult;
           ctx.fillRect(
@@ -232,7 +239,7 @@ export default {
           ctx.shadowColor = 'transparent';
 
           // Bubble bottom border
-          ctx.fillStyle = shift.assigned ? '#7c0b17' : '#444';
+          ctx.fillStyle = shift.assigned ? '#00000066' : '#444';
           ctx.fillRect(
             bubbleX,
             bubbleY + bubbleH - bubbleBorder,
@@ -252,8 +259,8 @@ export default {
           }
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = '#fff';
-          ctx.shadowColor = '#222';
+          ctx.fillStyle = shift.assigned ? bubbleTextColors[people[shift.assigned].ident_color] : '#fff';
+          ctx.shadowColor = shift.assigned ? bubbleTextShadowColors[people[shift.assigned].ident_color] : '#222';
           ctx.shadowBlur = 4 * pixelMult;
           const textX = bubbleX + bubbleW / 2;
           const textY = bubbleY + bubbleH / 2;
@@ -266,7 +273,7 @@ export default {
           // Assigned ID
           let assignedPerson = shift.assigned;
           if (assignedPerson) {
-            assignedPerson = this.$store.state.people[assignedPerson].num;
+            assignedPerson = people[assignedPerson].num;
           } else {
             assignedPerson = "-";
           }
@@ -277,6 +284,99 @@ export default {
           ctx.shadowOffsetY = 0;
           ctx.shadowOffsetX = 0;
         }
+      }
+    },
+    createSolveRequest() {
+      let req = {
+        people: [],
+        shifts: [],
+        settings: {
+          min_rest_per_day: 360,
+          longsleep_min_rest_per_day: 480,
+          overtime_interval_min: 15,
+          overtime_threshold: 12,
+          max_overtime_intervals: 8,
+          longsleep_max_overtime_intervals: 12,
+          suffer_per_overtime_min: 5,
+          longsleep_suffer_per_overtime_min: 0,
+          timeout: 3
+        }
+      };
+
+      Object.values(this.$store.state.tasks).forEach(task => {
+        Object.values(task.shifts).forEach(shift => {
+          req.shifts.push({
+            time: parseInt(shift.start * 60),
+            duration: parseInt(shift.duration * 60),
+            cost: 100,
+            task
+          });
+        });
+      });
+
+      Object.values(this.$store.state.people).forEach(person => {
+        const personObj = {
+            restricted_tasks: [],
+            assigned_tasks: [],
+            prefers_longer_sleep: false
+        };
+        req.shifts.forEach((shift, shift_idx) => {
+          for (const tag of shift.task.mustNotHaveTags) {
+            if (person.tags.includes(tag)) {
+              personObj.restricted_tasks.push(shift_idx);
+              return;
+            }
+          }
+          for (const tag of shift.task.mustHaveTags) {
+            if (!person.tags.includes(tag)) {
+              personObj.restricted_tasks.push(shift_idx);
+              return;
+            }
+          }
+        });
+        req.people.push(personObj);
+      });
+
+      req.shifts.forEach(shift => {
+        shift.task = undefined;
+      });
+
+      return req;
+    },
+    applySolution(solution) {
+      let shifts = Object.entries(this.$store.state.tasks).flatMap(([taskId, task]) => {
+        return Object.keys(task.shifts).map(shiftId => {
+          return [taskId, shiftId];
+        });
+      });
+
+      let people = Object.keys(this.$store.state.people);
+      let assignments = [];
+      solution.forEach((personIdx, shiftIdx) => {
+        assignments.push([...shifts[shiftIdx], people[personIdx]]);
+      });
+
+      this.$store.commit('assignMultipleShifts', assignments);
+      this.renderTimetable();
+    },
+    async autoSolve() {
+      let req = this.createSolveRequest();
+
+      this.autoSolveDisabled = true;
+
+      let res = await fetch("http://api.samal.to/v1/solve", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(req)
+      });
+      res = await res.json();
+
+      this.autoSolveDisabled = false;
+
+      if (res.solution_type != "Infeasible") {
+        this.applySolution(res.shifts);
       }
     }
   },

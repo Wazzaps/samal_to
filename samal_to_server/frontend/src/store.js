@@ -21,7 +21,7 @@ const store = new Vuex.Store({
         num: 2,
         name: "Bob",
         phoneNum: "050-123-1234",
-        tags: ["0"],
+        tags: ["1"],
         ident_color: 1,
         // ident_pattern: pattern,
       },
@@ -37,7 +37,7 @@ const store = new Vuex.Store({
         num: 4,
         name: "Dylan",
         phoneNum: "050-123-1234",
-        tags: [],
+        tags: ["1"],
         ident_color: 3,
         // ident_pattern: pattern,
       },
@@ -45,7 +45,7 @@ const store = new Vuex.Store({
         num: 5,
         name: "Evan",
         phoneNum: "050-123-1234",
-        tags: [],
+        tags: ["1"],
         ident_color: 4,
         // ident_pattern: pattern,
       },
@@ -53,7 +53,7 @@ const store = new Vuex.Store({
         num: 6,
         name: "Ferb",
         phoneNum: "050-123-1234",
-        tags: [],
+        tags: ["1"],
         ident_color: 5,
         // ident_pattern: pattern,
       },
@@ -89,6 +89,54 @@ const store = new Vuex.Store({
         ident_color: 3,
         // ident_pattern: pattern,
       },
+      10: {
+        num: 11,
+        name: "Karen",
+        phoneNum: "050-123-1234",
+        tags: [],
+        ident_color: 4,
+        // ident_pattern: pattern,
+      },
+      11: {
+        num: 12,
+        name: "Liam",
+        phoneNum: "050-123-1234",
+        tags: [],
+        ident_color: 5,
+        // ident_pattern: pattern,
+      },
+      12: {
+        num: 13,
+        name: "Max",
+        phoneNum: "050-123-1234",
+        tags: [],
+        ident_color: 0,
+        // ident_pattern: pattern,
+      },
+      13: {
+        num: 14,
+        name: "Noah",
+        phoneNum: "050-123-1234",
+        tags: [],
+        ident_color: 1,
+        // ident_pattern: pattern,
+      },
+      14: {
+        num: 15,
+        name: "Odin",
+        phoneNum: "050-123-1234",
+        tags: [],
+        ident_color: 2,
+        // ident_pattern: pattern,
+      },
+      15: {
+        num: 16,
+        name: "Peter",
+        phoneNum: "050-123-1234",
+        tags: [],
+        ident_color: 3,
+        // ident_pattern: pattern,
+      },
     },
     tasks: {
       0: {
@@ -97,7 +145,7 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: ["0"],
         shifts: {
-          0: { start: 12, duration: 4, assigned: "1" },
+          0: { start: 12, duration: 4, assigned: null },
           1: { start: 16, duration: 3, assigned: null },
           2: { start: 24+6, duration: 1, assigned: null },
           3: { start: 24+11, duration: 1, assigned: null },
@@ -119,7 +167,7 @@ const store = new Vuex.Store({
         name: "Wash clothes",
         description: "Use two spoons of detergent\n",
         mustHaveTags: [],
-        mustNotHaveTags: ["0"],
+        mustNotHaveTags: [],
         shifts: {
           0: { start: 15, duration: 3.5, assigned: null },
           1: { start: 15, duration: 3.5, assigned: null },
@@ -165,8 +213,8 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 12, duration: 4, assigned: "0" },
-          1: { start: 16, duration: 4, assigned: "2" },
+          0: { start: 12, duration: 4, assigned: null },
+          1: { start: 16, duration: 4, assigned: null },
           2: { start: 20, duration: 1, assigned: null },
         },
       },
@@ -238,20 +286,26 @@ const store = new Vuex.Store({
     // increment (state) {
     //   state.count++
     // }
-    personAddTag (state, [personId, tagId]) {
+    personAddTag(state, [personId, tagId]) {
       state.people[personId].tags.push(tagId);
     },
 
-    personRemoveTag (state, [personId, tagId]) {
+    personRemoveTag(state, [personId, tagId]) {
       state.people[personId].tags.splice(
         state.people[personId].tags.indexOf(tagId),
         1
       );
     },
 
-    createTag (state, [tagId, tagName]) {
+    createTag(state, [tagId, tagName]) {
       state.tags[tagId] = tagName;
-    }
+    },
+
+    assignMultipleShifts(state, assignments) {
+      assignments.forEach(([taskId, shiftId, personId]) => {
+        state.tasks[taskId].shifts[shiftId].assigned = personId;
+      })
+    },
   }
 });
 
