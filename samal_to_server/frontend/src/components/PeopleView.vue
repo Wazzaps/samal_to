@@ -22,7 +22,11 @@
         </div>
       </b-list-group-item>
     </b-list-group>
-    <b-button variant="primary" class="float-right mb-3 pr-4 pl-3 py-2"><b-icon-plus/> Add</b-button>
+    <b-button
+      @click="addPerson"
+      variant="primary"
+      class="float-right mb-3 pr-4 pl-3 py-2"
+    ><b-icon-plus/> Add</b-button>
   </div>
 </template>
 
@@ -31,31 +35,16 @@ import 'typeface-rubik';
 import PersonBubble from './PersonBubble.vue';
 
 export default {
-  // data: () => ({
-    // badgeColorToFgVariant: {
-    //   0: "light",
-    //   1: "dark",
-    //   2: "light",
-    //   3: "dark",
-    //   4: "light",
-    //   5: "dark",
-    // },
-    // badgePatternToIcon: {
-    //   0: "triangle-fill",
-    //   1: "star-fill",
-    //   2: "suit-diamond-fill",
-    //   3: "suit-heart-fill",
-    //   4: "dice-5-fill",
-    //   5: "nut-fill",
-    //   6: "trophy-fill",
-    //   7: "x-diamond-fill",
-    //   8: "suit-spade-fill",
-    //   9: "suit-club-fill",
-    // },
-  // }),
   components: {
     PersonBubble,
-  }
+  },
+  methods: {
+    async addPerson() {
+      let newPersonId = await this.$store.dispatch('addPerson');
+      this.$router.push('/people/' + newPersonId);
+      console.log(newPersonId);
+    }
+  },
 }
 </script>
 

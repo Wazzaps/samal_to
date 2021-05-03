@@ -100,10 +100,9 @@ export default {
       canvas.height = canvasHeight;
       ctx.textBaseline = "alphabetic";
 
-      // -- Draw timebar --
-      // ctx.fillStyle = 'rgb(240, 256, 240)';
-      ctx.fillStyle = 'rgb(256, 256, 256)';
-      ctx.fillRect(0, 0, timeBarWidth, canvasHeight);
+      // -- Draw bg --
+      ctx.fillStyle = 'rgba(256, 256, 256, 0.3)';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
       // Draw timebar lines
       ctx.strokeStyle = 'rgb(60, 60, 60)';
@@ -391,20 +390,6 @@ export default {
 #timetable_contents, #timetable_header {
   width: 100%;
   display: block;
-}
-
-#timetable_header {
-  position: sticky;
-  top: 10px;
-  background: #fff;
-  box-shadow: 0 -200px 0 200px #fff;
-  z-index: -10;
-}
-
-#timetable_contents {
-  position: relative;
-  z-index: -11;
-  background: #fff;
 }
 
 </style>

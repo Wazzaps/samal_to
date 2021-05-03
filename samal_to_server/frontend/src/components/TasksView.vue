@@ -26,12 +26,23 @@
         </div>
       </b-list-group-item>
     </b-list-group>
-    <b-button variant="primary" class="float-right mb-3 pr-4 pl-3 py-2"><b-icon-plus/> Add</b-button>
+    <b-button
+      @click="addTask"
+      variant="primary"
+      class="float-right mb-3 pr-4 pl-3 py-2"
+    ><b-icon-plus/> Add</b-button>
   </div>
 </template>
 
 <script>
 export default {
+  methods: {
+    async addTask() {
+      let newTaskId = await this.$store.dispatch('addTask');
+      this.$router.push('/tasks/' + newTaskId);
+      console.log(newTaskId);
+    }
+  },
 }
 </script>
 

@@ -210,6 +210,27 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
+    addPerson(state, [personId, personNum]) {
+      state.people[personId] = {
+        num: personNum,
+        name: "",
+        phoneNum: "",
+        tags: [],
+        ident_color: personId % 6,
+        // ident_pattern: pattern,
+      };
+    },
+
+    addTask(state, taskId) {
+      state.tasks[taskId] = {
+        name: "",
+        description: "\n",
+        mustHaveTags: [],
+        mustNotHaveTags: [],
+        shifts: {},
+      };
+    },
+
     personAddTag(state, [personId, tagId]) {
       state.people[personId].tags.push(tagId);
     },
@@ -221,6 +242,44 @@ const store = new Vuex.Store({
       );
     },
 
+    taskAddRequiredTag(state, [taskId, tagId]) {
+      state.tasks[taskId].mustHaveTags.push(tagId);
+    },
+
+    taskRemoveRequiredTag(state, [taskId, tagId]) {
+      state.tasks[taskId].mustHaveTags.splice(
+        state.tasks[taskId].mustHaveTags.indexOf(tagId),
+        1
+      );
+    },
+
+    taskAddDisqualifyingTag(state, [taskId, tagId]) {
+      state.tasks[taskId].mustNotHaveTags.push(tagId);
+    },
+
+    taskRemoveDisqualifyingTag(state, [taskId, tagId]) {
+      state.tasks[taskId].mustNotHaveTags.splice(
+        state.tasks[taskId].mustNotHaveTags.indexOf(tagId),
+        1
+      );
+    },
+
+    personUpdatePhoneNum(state, [personId, phoneNum]) {
+      state.people[personId].phoneNum = phoneNum;
+    },
+
+    personUpdateName(state, [personId, name]) {
+      state.people[personId].name = name;
+    },
+
+    taskUpdateName(state, [taskId, name]) {
+      state.tasks[taskId].name = name;
+    },
+
+    taskUpdateDescription(state, [taskId, description]) {
+      state.tasks[taskId].description = description;
+    },
+
     createTag(state, [tagId, tagName]) {
       state.tags[tagId] = tagName;
     },
@@ -230,6 +289,42 @@ const store = new Vuex.Store({
         state.tasks[taskId].shifts[shiftId].assigned = personId;
       })
     },
+  },
+  actions: {
+    addPerson({ commit, state }) {
+      let availableId = -1;
+      let True = true;
+      for (let i = 0; True; i++) {
+        if (!state.people[i]) {
+          availableId = i;
+          break;
+        }
+      }
+
+      let availableNum = -1;
+      for (let i = 1; True; i++) {
+        if (Object.values(state.people).every(p => p.num != i)) {
+          availableNum = i;
+          break;
+        }
+      }
+
+      commit('addPerson', [availableId, availableNum]);
+      return availableId;
+    },
+    addTask({ commit, state }) {
+      let availableId = -1;
+      let True = true;
+      for (let i = 0; True; i++) {
+        if (!state.tasks[i]) {
+          availableId = i;
+          break;
+        }
+      }
+
+      commit('addTask', availableId);
+      return availableId;
+    }
   }
 });
 

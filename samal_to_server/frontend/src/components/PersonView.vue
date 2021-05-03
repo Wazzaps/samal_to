@@ -5,8 +5,10 @@
         <b-input-group-text><b-icon-telephone/></b-input-group-text>
       </template>
       <b-form-input
-        id="input-1"
+        id="tel-input"
         :value="$store.state.people[$route.params.id].phoneNum"
+        @change="updatePhoneNum"
+        :state="telValid"
         type="tel"
         size="lg"
         placeholder="Phone number..."
@@ -80,6 +82,10 @@ function setDifference(a, b) {
 
 export default {
   name: 'PersonView',
+  data: () => ({
+    telValid: null,
+    tagUpdateAge: 0,
+  }),
   props: {
   },
   components: {
@@ -87,6 +93,8 @@ export default {
   computed: {
     ...mapState({
       tagRecommendations(state) {
+        this.tagUpdateAge; // Reactivity hack
+
         let allTags = Object.keys(state.tags);
         let myTags = state.people[this.$route.params.id].tags;
         return allTags.filter((tagId) => {
@@ -111,10 +119,18 @@ export default {
   methods: {
     addTag(tagId) {
       this.$store.commit('personAddTag', [this.$route.params.id, tagId]);
+
+      // Reactivity hack
+      this.$forceUpdate();
+      this.tagUpdateAge++;
     },
 
     removeTag(tagId) {
       this.$store.commit('personRemoveTag', [this.$route.params.id, tagId]);
+
+      // Reactivity hack
+      this.$forceUpdate();
+      this.tagUpdateAge++;
     },
 
     updateTags(nextTags) {
@@ -142,6 +158,19 @@ export default {
       let removedTagIds = setDifference(prevTagIds, nextTagIds);
       for (const tagId of removedTagIds) {
         this.removeTag(tagId);
+      }
+
+      // Reactivity hack
+      this.$forceUpdate();
+      this.tagUpdateAge++;
+    },
+
+    updatePhoneNum(phoneNum) {
+      if (phoneNum.match(/[^0-9-]/) == null) {
+        this.$store.commit('personUpdatePhoneNum', [this.$route.params.id, phoneNum]);
+        this.telValid = null;
+      } else {
+        this.telValid = false;
       }
     },
 

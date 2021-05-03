@@ -27,6 +27,7 @@
         <b-input
           class="name-tag text-body mx-3"
           :value="$store.state.people[$route.params.id].name"
+          @change="updatePersonName"
           placeholder="Name..."
         />
         <div class="pad d-flex flex-row justify-content-center">
@@ -46,6 +47,7 @@
         <b-input
           class="name-tag text-body mx-3"
           :value="$store.state.tasks[$route.params.id].name"
+          @change="updateTaskName"
           placeholder="Name..."
         />
         <div class="pad"/>
@@ -61,7 +63,16 @@ export default {
   },
   components: {
     PersonBubble,
-  }
+  },
+  methods: {
+    updatePersonName(name) {
+      this.$store.commit('personUpdateName', [this.$route.params.id, name]);
+    },
+
+    updateTaskName(name) {
+      this.$store.commit('taskUpdateName', [this.$route.params.id, name]);
+    },
+  },
 }
 </script>
 
