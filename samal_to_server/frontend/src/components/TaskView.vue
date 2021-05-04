@@ -75,7 +75,7 @@
 
     <div class="d-flex flex-wrap mt-2 ml-5">
       <b-badge
-        variant="primary"
+        variant="danger"
         pill
         class="align-self-start mr-1 mb-1"
         v-for="[tag, tagId] in tagRecommendations"

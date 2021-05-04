@@ -1,6 +1,5 @@
 import Vuex from 'vuex'
 
-// const pattern = 0;
 
 const store = new Vuex.Store({
   state: {
@@ -15,7 +14,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: ["0", "1"],
         ident_color: 0,
-        // ident_pattern: pattern,
       },
       1: {
         num: 2,
@@ -23,7 +21,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: ["1"],
         ident_color: 1,
-        // ident_pattern: pattern,
       },
       2: {
         num: 3,
@@ -31,7 +28,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: ["1"],
         ident_color: 2,
-        // ident_pattern: pattern,
       },
       3: {
         num: 4,
@@ -39,7 +35,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: ["1"],
         ident_color: 3,
-        // ident_pattern: pattern,
       },
       4: {
         num: 5,
@@ -47,7 +42,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: ["1"],
         ident_color: 4,
-        // ident_pattern: pattern,
       },
       5: {
         num: 6,
@@ -55,7 +49,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: ["1"],
         ident_color: 5,
-        // ident_pattern: pattern,
       },
       6: {
         num: 7,
@@ -63,7 +56,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: ["1"],
         ident_color: 0,
-        // ident_pattern: pattern,
       },
       7: {
         num: 8,
@@ -71,7 +63,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 1,
-        // ident_pattern: pattern,
       },
       8: {
         num: 9,
@@ -79,7 +70,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 2,
-        // ident_pattern: pattern,
       },
       9: {
         num: 10,
@@ -87,7 +77,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 3,
-        // ident_pattern: pattern,
       },
       10: {
         num: 11,
@@ -95,7 +84,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 4,
-        // ident_pattern: pattern,
       },
       11: {
         num: 12,
@@ -103,7 +91,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 5,
-        // ident_pattern: pattern,
       },
       12: {
         num: 13,
@@ -111,7 +98,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 0,
-        // ident_pattern: pattern,
       },
       13: {
         num: 14,
@@ -119,7 +105,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 1,
-        // ident_pattern: pattern,
       },
       14: {
         num: 15,
@@ -127,7 +112,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 2,
-        // ident_pattern: pattern,
       },
       15: {
         num: 16,
@@ -135,7 +119,6 @@ const store = new Vuex.Store({
         phoneNum: "050-123-1234",
         tags: [],
         ident_color: 3,
-        // ident_pattern: pattern,
       },
     },
     tasks: {
@@ -229,6 +212,14 @@ const store = new Vuex.Store({
         mustNotHaveTags: [],
         shifts: {},
       };
+    },
+
+    deletePerson(state, personId) {
+      delete state.people[personId];
+    },
+
+    deleteTask(state, taskId) {
+      delete state.tasks[taskId];
     },
 
     personAddTag(state, [personId, tagId]) {

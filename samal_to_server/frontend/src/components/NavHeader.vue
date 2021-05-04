@@ -20,22 +20,15 @@
         class="d-flex flex-row mb-3 px-1 align-items-center justify-content-between"
       >
         <b-button class="py-3" variant="link" to=".." append><b-icon-arrow-left-circle-fill font-scale="2.125"/></b-button>
-        <!-- <b-button variant="outline-primary d-flex flex-row align-items-center">
-          <span class="title mr-2">{{$store.state.people[$route.params.id].name}}</span>
-          <b-icon-pencil-fill font-scale="0.8"/>
-        </b-button> -->
         <b-input
           class="name-tag text-body mx-3"
           :value="$store.state.people[$route.params.id].name"
           @change="updatePersonName"
           placeholder="Name..."
         />
-        <div class="pad d-flex flex-row justify-content-center">
-          <person-bubble
-            :person="$store.state.people[$route.params.id]"
-            flat
-          />
-        </div>
+        <b-button class="pad d-flex flex-row justify-content-center py-3" variant="link" @click="deleteThisPerson">
+          <b-icon-trash-fill variant="danger" font-scale="1.5"/>
+        </b-button>
       </b-container>
 
       <!-- Item view header (task view) -->
@@ -50,19 +43,19 @@
           @change="updateTaskName"
           placeholder="Name..."
         />
-        <div class="pad"/>
+        <b-button class="pad d-flex flex-row justify-content-center py-3" variant="link" @click="deleteThisTask">
+          <b-icon-trash-fill variant="danger" font-scale="1.5"/>
+        </b-button>
       </b-container>
     </header>
 </template>
 
 <script>
-import PersonBubble from "./PersonBubble.vue";
 export default {
   name: 'HelloWorld',
   props: {
   },
   components: {
-    PersonBubble,
   },
   methods: {
     updatePersonName(name) {
@@ -71,6 +64,16 @@ export default {
 
     updateTaskName(name) {
       this.$store.commit('taskUpdateName', [this.$route.params.id, name]);
+    },
+
+    deleteThisPerson() {
+      this.$store.commit('deletePerson', this.$route.params.id);
+      this.$router.push('/people');
+    },
+
+    deleteThisTask() {
+      this.$store.commit('deleteTask', this.$route.params.id);
+      this.$router.push('/tasks');
     },
   },
 }
