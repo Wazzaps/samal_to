@@ -1,5 +1,7 @@
 import Vuex from 'vuex'
 
+const baseTime = 1620248400; // Posix time for: Thu May 06 2021 00:00:00 GMT+0300 (Israel Daylight Time)
+const timeMult = 60 * 60; // Hours -> Seconds
 
 const store = new Vuex.Store({
   state: {
@@ -128,10 +130,10 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: ["0"],
         shifts: {
-          0: { start: 12, duration: 4, assigned: null },
-          1: { start: 16, duration: 3, assigned: null },
-          2: { start: 24, duration: 2, assigned: null },
-          3: { start: 24+2, duration: 2, assigned: null },
+          0: { start: baseTime + timeMult * (12), duration: timeMult * (4), assigned: "0" },
+          1: { start: baseTime + timeMult * (16), duration: timeMult * (3), assigned: "0" },
+          2: { start: baseTime + timeMult * (24), duration: timeMult * (2), assigned: "0" },
+          3: { start: baseTime + timeMult * (24+2), duration: timeMult * (2), assigned: "0" },
         },
       },
       1: {
@@ -140,10 +142,10 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 13, duration: 4, assigned: null },
-          1: { start: 14, duration: 3, assigned: null },
-          2: { start: 24+5, duration: 1, assigned: null },
-          3: { start: 24+6, duration: 4, assigned: null },
+          0: { start: baseTime + timeMult * (13), duration: timeMult * (4), assigned: null },
+          1: { start: baseTime + timeMult * (14), duration: timeMult * (3), assigned: null },
+          2: { start: baseTime + timeMult * (24+5), duration: timeMult * (1), assigned: null },
+          3: { start: baseTime + timeMult * (24+6), duration: timeMult * (4), assigned: null },
         },
       },
       2: {
@@ -152,12 +154,12 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 16, duration: 3.5, assigned: null },
-          1: { start: 16, duration: 3.5, assigned: null },
-          2: { start: 14.5, duration: 5, assigned: null },
-          3: { start: 24+6.25, duration: 5, assigned: null },
-          4: { start: 24+7, duration: 4.75, assigned: null },
-          5: { start: 24+7, duration: 4.75, assigned: null },
+          0: { start: baseTime + timeMult * (16), duration: timeMult * (3.5), assigned: null },
+          1: { start: baseTime + timeMult * (16), duration: timeMult * (3.5), assigned: null },
+          2: { start: baseTime + timeMult * (14.5), duration: timeMult * (5), assigned: null },
+          3: { start: baseTime + timeMult * (24+6.25), duration: timeMult * (5), assigned: null },
+          4: { start: baseTime + timeMult * (24+7), duration: timeMult * (4.75), assigned: null },
+          5: { start: baseTime + timeMult * (24+7), duration: timeMult * (4.75), assigned: null },
         },
       },
       3: {
@@ -166,7 +168,7 @@ const store = new Vuex.Store({
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 23, duration: 2, assigned: null },
+          0: { start: baseTime + timeMult * (23), duration: timeMult * (2), assigned: null },
         },
       },
       4: {
@@ -175,9 +177,9 @@ const store = new Vuex.Store({
         mustHaveTags: ["1"],
         mustNotHaveTags: [],
         shifts: {
-          0: { start: 17, duration: 2, assigned: null },
-          1: { start: 24+6, duration: 2, assigned: null },
-          2: { start: 24+10, duration: 2, assigned: null },
+          0: { start: baseTime + timeMult * (17), duration: timeMult * (2), assigned: null },
+          1: { start: baseTime + timeMult * (24+6), duration: timeMult * (2), assigned: null },
+          2: { start: baseTime + timeMult * (24+10), duration: timeMult * (2), assigned: null },
         },
       },
       5: {
@@ -186,8 +188,8 @@ const store = new Vuex.Store({
         mustHaveTags: ["1"],
         mustNotHaveTags: ["0"],
         shifts: {
-          0: { start: 24+8.5, duration: 1.5, assigned: null },
-          1: { start: 24+10, duration: 1.5, assigned: null },
+          0: { start: baseTime + timeMult * (24+8.5), duration: timeMult * (1.5), assigned: null },
+          1: { start: baseTime + timeMult * (24+10), duration: timeMult * (1.5), assigned: null },
         },
       },
     },

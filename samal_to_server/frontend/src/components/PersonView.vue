@@ -58,19 +58,25 @@
 
     <em v-if="assignedShifts.length == 0">No shifts assigned</em>
 
-    <b-list-group class="mb-3 mt-2">
-      <b-list-group-item v-for="(shift, shiftId) in assignedShifts" :key="shiftId" class="pr-1">
-        <div class="d-flex flex-row">
-          <div class="d-flex flex-column mr-1 w-100">
-            <strong>{{shift.task.name}}</strong>
-            <span>{{formatShiftTime(shift.shift)}}</span>
+    <div v-for="(shifts, date) in assignedShifts" :key="date">
+      <h5>– {{date}} –</h5>
+      <b-list-group class="mb-3 mt-2">
+        <b-list-group-item v-for="shift in shifts" :key="shift.shiftId" class="pr-1">
+          <div class="d-flex flex-row">
+            <div class="d-flex flex-column mr-1 w-100">
+              <strong>{{shift.task.name}}</strong>
+              <span>
+                <strong>{{formatShiftTime(shift.shift)}}</strong>
+                {{formatShiftDuration(shift.shift)}}
+              </span>
+            </div>
+            <b-button class="pad d-flex flex-column justify-content-center py-2 px-3" variant="link" @click="unassignShift(shift.taskId, shift.shiftId)">
+              <b-icon-x variant="danger" font-scale="1.5"/>
+            </b-button>
           </div>
-          <b-button class="pad d-flex flex-column justify-content-center py-2 px-3" variant="link" @click="unassignShift(shift.taskId, shift.shiftId)">
-            <b-icon-x variant="danger" font-scale="1.5"/>
-          </b-button>
-        </div>
-      </b-list-group-item>
-    </b-list-group>
+        </b-list-group-item>
+      </b-list-group>
+    </div>
   </div>
 </template>
 
@@ -117,7 +123,25 @@ export default {
             }
           }
         }
-        return shifts;
+        shifts.sort((shiftA, shiftB) => {
+          return shiftA.shift.start > shiftB.shift.start ? 1 : -1;
+        });
+
+        if (shifts.length == 0) {
+          return [];
+        }
+
+        let days = {};
+        let curDate = null;
+        for (const shift of shifts) {
+          const nextDate = new Date(shift.shift.start * 1000).toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[0];
+          if (curDate != nextDate) {
+            days[nextDate] = [];
+          }
+          days[nextDate].push(shift);
+          curDate = nextDate;
+        }
+        return days;
       }
     })
   },
@@ -188,16 +212,16 @@ export default {
     },
 
     formatShiftTime(shift) {
-      const startHr = parseInt(shift.start);
-      const startMin = parseInt((shift.start * 60) % 60);
-      const endHr = parseInt(shift.start + shift.duration);
-      const endMin = parseInt(((shift.start + shift.duration) * 60) % 60);
-      return `${startHr}:${startMin.toString().padStart(2, '0')} - ${endHr}:${endMin.toString().padStart(2, '0')}`;
+      let startTime = new Date(shift.start * 1000).toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[1];
+      startTime = startTime.substr(0, startTime.lastIndexOf(":"));
+      let endTime = new Date((shift.start + shift.duration) * 1000).toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[1];
+      endTime = endTime.substr(0, endTime.lastIndexOf(":"));
+      return `${startTime} - ${endTime}`;
     },
 
     formatShiftDuration(shift) {
-      const durationHr = parseInt(shift.duration / 4);
-      const durationMin = (shift.duration % 4) * 15;
+      const durationHr = parseInt(shift.duration / (60 * 60));
+      const durationMin = (shift.duration % (60 * 60));
       return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 4 ? '' : 's'})`;
     },
   }

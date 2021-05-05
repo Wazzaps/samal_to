@@ -39,8 +39,18 @@ export default {
     renderTimetable() {
       const tasks = Object.entries(this.$store.state.tasks);
       let tracks = [];
+      let minTime = Infinity;
+      let maxTime = 0;
+
       tasks.forEach(([taskId, task]) => {
         Object.values(task.shifts).forEach(shift => {
+          if (shift.start < minTime) {
+            minTime = shift.start;
+          }
+          if (shift.start + shift.duration > maxTime) {
+            maxTime = shift.start + shift.duration;
+          }
+
           function trackIsAvailable(track, start, duration) {
             return track.every(([_, trackShift]) => {
               // No overlapping shifts in this track
@@ -62,19 +72,21 @@ export default {
         track.sort(([_1, shiftA], [_2, shiftB]) => {
           return shiftA.start > shiftB.start ? 1 : -1;
         });
-      })
+      });
 
-      this.renderTimetableContents(tracks);
+      if (minTime == Infinity || maxTime == 0) {
+        minTime = maxTime = new Date().getTime() / 1000;
+      }
+
+      this.renderTimetableContents(tracks, minTime * 1000, maxTime * 1000);
     },
-    renderTimetableContents(tracks) {
+    renderTimetableContents(tracks, timeStart, timeEnd) {
       const canvas = document.getElementById('timetable_contents');
       const ctx = canvas.getContext('2d');
 
       const people = this.$store.state.people;
       const tasks = this.$store.state.tasks;
 
-      const timeStart = new Date('2020-12-17T12:00:00').getTime();
-      const timeEnd = new Date('2020-12-18T12:00:00').getTime();
       const timeHours = (timeEnd - timeStart) / 1000 / 60 / 60;
 
       // Various constants
@@ -220,9 +232,9 @@ export default {
       for (let i = 0; i < tracks.length; i++) {
         for (const [taskId, shift] of tracks[i]) {
           const bubbleX = parseInt(timeBarWidth + i * trackWidth + bubblePadding);
-          const bubbleY = parseInt(timebarOffset + timebarTextPadding + (shift.start - 12) * timebarHourHeight);
+          const bubbleY = parseInt(timebarOffset + timebarTextPadding + (shift.start - timeStart / 1000) / (60 * 60) * timebarHourHeight);
           const bubbleW = parseInt(trackWidth - 2 * bubblePadding);
-          const bubbleH = parseInt(shift.duration * timebarHourHeight);
+          const bubbleH = parseInt(shift.duration / (60 * 60) * timebarHourHeight);
 
           // Bubble base
           ctx.fillStyle = shift.assigned ? bubbleColors[people[shift.assigned].ident_color] : '#777';
@@ -286,6 +298,26 @@ export default {
       }
     },
     createSolveRequest() {
+      // Calculate task time range
+      let minTime = Infinity;
+      let maxTime = 0;
+
+      Object.entries(this.$store.state.tasks).forEach(([_taskId, task]) => {
+        Object.values(task.shifts).forEach(shift => {
+          if (shift.start < minTime) {
+            minTime = shift.start;
+          }
+          if (shift.start + shift.duration > maxTime) {
+            maxTime = shift.start + shift.duration;
+          }
+        });
+      });
+
+      if (minTime == Infinity || maxTime == 0) {
+        minTime = maxTime = new Date().getTime() / 1000;
+      }
+
+      // Create request
       let req = {
         people: [],
         shifts: [],
@@ -305,8 +337,8 @@ export default {
       Object.values(this.$store.state.tasks).forEach(task => {
         Object.values(task.shifts).forEach(shift => {
           req.shifts.push({
-            time: parseInt(shift.start * 60),
-            duration: parseInt(shift.duration * 60),
+            time: parseInt((shift.start - minTime) / 60),
+            duration: parseInt(shift.duration / 60),
             cost: 100,
             task
           });

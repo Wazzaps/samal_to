@@ -91,15 +91,17 @@
 
     <em v-if="Object.keys(currentTask.shifts).length == 0">No shifts</em>
 
-    <b-list-group class="mb-3 mt-2">
-      <b-list-group-item @click="openShiftEditModal(shiftId)" v-b-modal.shift-modal v-for="(shift, shiftId) in currentTask.shifts" :key="shiftId" class="pr-1">
+    <div v-for="(shifts, date) in groupedShifts" :key="date">
+      <h5>– {{date}} –</h5>
+      <b-list-group class="mb-3 mt-2">
+      <b-list-group-item @click="openShiftEditModal(shift.shiftId)" v-b-modal.shift-modal v-for="shift in shifts" :key="shift.shiftId" class="pr-1">
         <div class="d-flex flex-row">
           <div class="d-flex flex-column mr-1 w-100">
             <span>
-              <strong>{{formatShiftTime(shift)}}</strong>
-              {{formatShiftDuration(shift)}}
+              <strong>{{formatShiftTime(shift.shift)}}</strong>
+              {{formatShiftDuration(shift.shift)}}
             </span>
-            <span class="description">{{formatShiftAssigned(shift)}}</span>
+            <span class="description">{{formatShiftAssigned(shift.shift)}}</span>
           </div>
           <div class="pad d-flex flex-column justify-content-center py-2 px-3">
             <b-icon-pencil-fill variant="primary"/>
@@ -107,6 +109,8 @@
         </div>
       </b-list-group-item>
     </b-list-group>
+    </div>
+
     <b-button variant="primary" class="float-right mb-3 pr-4 pl-3 py-2"><b-icon-plus/> Add</b-button>
 
     <b-modal id="shift-modal" title="Edit Shift">
@@ -178,6 +182,31 @@ export default {
       },
       currentTask(state) {
         return state.tasks[this.$route.params.id];
+      },
+      groupedShifts(state) {
+        let shifts = [];
+        for (const [shiftId, shift] of Object.entries(this.currentTask.shifts)) {
+          shifts.push({shiftId, shift});
+        }
+        shifts.sort((shiftA, shiftB) => {
+          return shiftA.shift.start > shiftB.shift.start ? 1 : -1;
+        });
+
+        if (shifts.length == 0) {
+          return [];
+        }
+
+        let days = {};
+        let curDate = null;
+        for (const shift of shifts) {
+          const nextDate = new Date(shift.shift.start * 1000).toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[0];
+          if (curDate != nextDate) {
+            days[nextDate] = [];
+          }
+          days[nextDate].push(shift);
+          curDate = nextDate;
+        }
+        return days;
       }
     }),
 
@@ -199,16 +228,16 @@ export default {
     },
 
     formatShiftTime(shift) {
-      const startHr = parseInt(shift.start);
-      const startMin = parseInt((shift.start * 60) % 60);
-      const endHr = parseInt(shift.start + shift.duration);
-      const endMin = parseInt(((shift.start + shift.duration) * 60) % 60);
-      return `${startHr}:${startMin.toString().padStart(2, '0')} - ${endHr}:${endMin.toString().padStart(2, '0')}`;
+      let startTime = new Date(shift.start * 1000).toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[1];
+      startTime = startTime.substr(0, startTime.lastIndexOf(":"));
+      let endTime = new Date((shift.start + shift.duration) * 1000).toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[1];
+      endTime = endTime.substr(0, endTime.lastIndexOf(":"));
+      return `${startTime} - ${endTime}`;
     },
 
     formatShiftDuration(shift) {
-      const durationHr = parseInt(shift.duration / 4);
-      const durationMin = (shift.duration % 4) * 15;
+      const durationHr = parseInt(shift.duration / (60 * 60));
+      const durationMin = (shift.duration % (60 * 60));
       return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 4 ? '' : 's'})`;
     },
 
