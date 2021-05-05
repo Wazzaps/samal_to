@@ -91,18 +91,54 @@
 
     <em v-if="Object.keys(currentTask.shifts).length == 0">No shifts</em>
 
-    <b-list-group class="mb-3">
-      <b-list-group-item :to="'/tasks/' + currentTaskId + '/shifts/' + shiftId" v-for="(shift, shiftId) in currentTask.shifts" :key="shiftId">
-        <div class="d-flex flex-column">
-          <span>
-            <strong>{{formatShiftTime(shift)}}</strong>
-            {{formatShiftDuration(shift)}}
-          </span>
-          <span class="description">{{formatShiftAssigned(shift)}}</span>
+    <b-list-group class="mb-3 mt-2">
+      <b-list-group-item @click="openShiftEditModal(shiftId)" v-b-modal.shift-modal v-for="(shift, shiftId) in currentTask.shifts" :key="shiftId" class="pr-1">
+        <div class="d-flex flex-row">
+          <div class="d-flex flex-column mr-1 w-100">
+            <span>
+              <strong>{{formatShiftTime(shift)}}</strong>
+              {{formatShiftDuration(shift)}}
+            </span>
+            <span class="description">{{formatShiftAssigned(shift)}}</span>
+          </div>
+          <div class="pad d-flex flex-column justify-content-center py-2 px-3">
+            <b-icon-pencil-fill variant="primary"/>
+          </div>
         </div>
       </b-list-group-item>
     </b-list-group>
     <b-button variant="primary" class="float-right mb-3 pr-4 pl-3 py-2"><b-icon-plus/> Add</b-button>
+
+    <b-modal id="shift-modal" title="Edit Shift">
+      <h5>Start date:</h5>
+      <b-row>
+        <b-col class="pr-1"><b-datepicker/></b-col>
+        <b-col class="pl-1"><b-timepicker/></b-col>
+      </b-row>
+      <h5 class="mt-4">End date:</h5>
+      <b-row>
+        <b-col class="pr-1"><b-datepicker/></b-col>
+        <b-col class="pl-1"><b-timepicker/></b-col>
+      </b-row>
+      <h5 class="mt-4">Assigned:</h5>
+      <b-form-select
+        @change="updateShiftAssignment"
+        :value="currentTask.shifts[modalShiftId].assigned"
+      >
+        <b-form-select-option :value="null">Not assigned</b-form-select-option>
+        <b-form-select-option
+          :value="personId"
+          v-for="([personId, person]) in Object.entries(this.$store.state.people)"
+          :key="personId"
+        >#{{person.num}}: {{person.name}}</b-form-select-option>
+      </b-form-select>
+
+      <template #modal-footer="{ ok }">
+        <b-button variant="primary" @click="ok()">
+          Save
+        </b-button>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -120,6 +156,7 @@ function setDifference(a, b) {
 export default {
   name: 'TaskView',
   data: () => ({
+    modalShiftId: 0,
     tagUpdateAge: 0,
   }),
   props: {
@@ -141,7 +178,7 @@ export default {
       },
       currentTask(state) {
         return state.tasks[this.$route.params.id];
-      },
+      }
     }),
 
     currentTaskId() {
@@ -149,6 +186,18 @@ export default {
     }
   },
   methods: {
+    openShiftEditModal(shiftId) {
+      this.modalShiftId = shiftId;
+    },
+
+    updateShiftAssignment(personId) {
+      this.$store.commit('taskAssignShift', [this.$route.params.id, this.modalShiftId, personId]);
+
+      // Reactivity hack
+      this.$forceUpdate();
+      this.tagUpdateAge++;
+    },
+
     formatShiftTime(shift) {
       const startHr = parseInt(shift.start);
       const startMin = parseInt((shift.start * 60) % 60);

@@ -58,11 +58,16 @@
 
     <em v-if="assignedShifts.length == 0">No shifts assigned</em>
 
-    <b-list-group class="mb-3">
-      <b-list-group-item v-for="(shift, shiftId) in assignedShifts" :key="shiftId">
-        <div class="d-flex flex-column">
-          <strong>{{shift.task.name}}</strong>
-          <span>{{formatShiftTime(shift.shift)}}</span>
+    <b-list-group class="mb-3 mt-2">
+      <b-list-group-item v-for="(shift, shiftId) in assignedShifts" :key="shiftId" class="pr-1">
+        <div class="d-flex flex-row">
+          <div class="d-flex flex-column mr-1 w-100">
+            <strong>{{shift.task.name}}</strong>
+            <span>{{formatShiftTime(shift.shift)}}</span>
+          </div>
+          <b-button class="pad d-flex flex-column justify-content-center py-2 px-3" variant="link" @click="unassignShift(shift.taskId, shift.shiftId)">
+            <b-icon-x variant="danger" font-scale="1.5"/>
+          </b-button>
         </div>
       </b-list-group-item>
     </b-list-group>
@@ -105,10 +110,10 @@ export default {
       },
       assignedShifts(state) {
         let shifts = [];
-        for (const task of Object.values(state.tasks)) {
-          for (const shift of Object.values(task.shifts)) {
+        for (const [taskId, task] of Object.entries(state.tasks)) {
+          for (const [shiftId, shift] of Object.entries(task.shifts)) {
             if (shift.assigned == this.$route.params.id) {
-              shifts.push({task, shift});
+              shifts.push({taskId, task, shiftId, shift});
             }
           }
         }
@@ -172,6 +177,14 @@ export default {
       } else {
         this.telValid = false;
       }
+    },
+
+    unassignShift(taskId, shiftId) {
+      this.$store.commit('taskAssignShift', [taskId, shiftId, null]);
+
+      // Reactivity hack
+      this.$forceUpdate();
+      this.tagUpdateAge++;
     },
 
     formatShiftTime(shift) {

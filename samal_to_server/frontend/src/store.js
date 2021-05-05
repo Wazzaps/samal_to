@@ -233,6 +233,10 @@ const store = new Vuex.Store({
       );
     },
 
+    taskAssignShift(state, [taskId, shiftId, personId]) {
+      state.tasks[taskId].shifts[shiftId].assigned = personId;
+    },
+
     taskAddRequiredTag(state, [taskId, tagId]) {
       state.tasks[taskId].mustHaveTags.push(tagId);
     },
