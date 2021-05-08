@@ -31,12 +31,65 @@
       variant="primary"
       class="float-right mb-3 pr-4 pl-3 py-2"
     ><b-icon-plus/> Add</b-button>
+    <b-button
+      @click="openRebaseModal"
+      v-b-modal.rebase-modal
+      class="mb-3 mr-3 float-right"
+      variant="outline-primary"
+    >
+      <span class="h-1em">Move All Shifts</span>
+    </b-button>
+
+    <!-- Rebase modal -->
+    <b-modal
+      @ok="applyRebase"
+      ok-title="Apply"
+      id="rebase-modal"
+      title="Time Of First Shift:"
+    >
+      <center>
+        <date-picker
+          v-model="calValue"
+          :is24hr="true"
+          mode="dateTime"
+        />
+      </center>
+    </b-modal>
   </div>
 </template>
 
 <script>
+import DatePicker from 'v-calendar/lib/components/date-picker.umd'
+
 export default {
+  data: () => ({
+    calValue: new Date(),
+  }),
+  components: {
+    DatePicker,
+  },
   methods: {
+    shiftMinStartTime() {
+      let minStartTime = Infinity;
+      for (const task of Object.values(this.$store.state.tasks)) {
+        for (const shift of Object.values(task.shifts)) {
+          if (shift.start < minStartTime) {
+            minStartTime = shift.start;
+          }
+        }
+      }
+
+      return minStartTime;
+    },
+    openRebaseModal() {
+      this.calValue = new Date(this.shiftMinStartTime() * 1000);
+    },
+
+    applyRebase() {
+      const delta = (this.calValue.getTime() / 1000) - this.shiftMinStartTime();
+      this.$store.commit('rebaseShifts', delta);
+    },
+
     async addTask() {
       let newTaskId = await this.$store.dispatch('addTask');
       this.$router.push('/tasks/' + newTaskId);
@@ -48,5 +101,9 @@ export default {
 <style scoped>
 .description {
   white-space: pre-wrap;
+}
+
+.h-1em {
+  line-height: 1.75rem;
 }
 </style>

@@ -434,7 +434,7 @@ export default {
   display: inline-flex !important;
 }
 
-.modal-footer {
+#shift-modal .modal-footer {
   justify-content: space-between;
 }
 </style>

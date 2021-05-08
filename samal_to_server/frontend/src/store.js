@@ -307,6 +307,14 @@ const store = new Vuex.Store({
         state.tasks[taskId].shifts[shiftId].assigned = personId;
       })
     },
+
+    rebaseShifts(state, delta) {
+      for (const task of Object.values(state.tasks)) {
+        for (const shift of Object.values(task.shifts)) {
+          shift.start += delta;
+        }
+      }
+    },
   },
   actions: {
     addPerson({ commit, state }) {
