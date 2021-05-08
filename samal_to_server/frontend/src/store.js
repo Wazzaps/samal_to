@@ -209,7 +209,7 @@ const store = new Vuex.Store({
     addTask(state, taskId) {
       state.tasks[taskId] = {
         name: "",
-        description: "\n",
+        description: "",
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {},
@@ -258,6 +258,27 @@ const store = new Vuex.Store({
       state.tasks[taskId].mustNotHaveTags.splice(
         state.tasks[taskId].mustNotHaveTags.indexOf(tagId),
         1
+      );
+    },
+
+    taskAddShift(state, [taskId, shiftId]) {
+      let currentDate = new Date();
+      currentDate.setMinutes(0, 0, 0);
+      state.tasks[taskId].shifts[shiftId] = {
+        start: currentDate.getTime() / 1000,
+        duration: 60 * 60, // 1 Hour
+        assigned: null
+      };
+    },
+
+    taskDeleteShift(state, [taskId, shiftId]) {
+      delete state.tasks[taskId].shifts[shiftId];
+    },
+
+    shiftSetTime(state, [taskId, shiftId, timeRange]) {
+      state.tasks[taskId].shifts[shiftId].start = parseInt(timeRange.start.getTime() / 1000);
+      state.tasks[taskId].shifts[shiftId].duration = parseInt(
+        (timeRange.end.getTime() - timeRange.start.getTime()) / 1000
       );
     },
 
@@ -320,6 +341,19 @@ const store = new Vuex.Store({
       }
 
       commit('addTask', availableId);
+      return availableId;
+    },
+    taskAddShift({ commit, state }, taskId) {
+      let availableId = -1;
+      let True = true;
+      for (let i = 0; True; i++) {
+        if (!state.tasks[taskId].shifts[i]) {
+          availableId = i;
+          break;
+        }
+      }
+
+      commit('taskAddShift', [taskId, availableId]);
       return availableId;
     }
   }

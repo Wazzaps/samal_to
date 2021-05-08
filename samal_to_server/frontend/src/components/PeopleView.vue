@@ -42,7 +42,6 @@ export default {
     async addPerson() {
       let newPersonId = await this.$store.dispatch('addPerson');
       this.$router.push('/people/' + newPersonId);
-      console.log(newPersonId);
     }
   },
 }

@@ -40,7 +40,6 @@ export default {
     async addTask() {
       let newTaskId = await this.$store.dispatch('addTask');
       this.$router.push('/tasks/' + newTaskId);
-      console.log(newTaskId);
     }
   },
 }

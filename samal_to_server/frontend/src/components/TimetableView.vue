@@ -6,6 +6,7 @@
       </b-button>
     </center> -->
 
+    <b-button class="mb-3 ml-3 float-right" variant="outline-primary">Share</b-button>
     <b-button class="mb-3 float-right" variant="primary" @click="autoSolve" :disabled="autoSolveDisabled">Auto Assign</b-button>
 
     <canvas id="timetable_contents"/>
@@ -239,7 +240,7 @@ export default {
           // Bubble base
           ctx.fillStyle = shift.assigned ? bubbleColors[people[shift.assigned].ident_color] : '#777';
           ctx.shadowColor = shift.assigned ? bubbleShadowColors[people[shift.assigned].ident_color] : '#111';
-          ctx.shadowBlur = 4 * pixelMult;
+          ctx.shadowBlur = 6 * pixelMult;
           ctx.shadowOffsetY = 2 * pixelMult;
           ctx.fillRect(
             bubbleX,
@@ -286,7 +287,7 @@ export default {
           if (assignedPerson) {
             assignedPerson = people[assignedPerson].num;
           } else {
-            assignedPerson = "-";
+            assignedPerson = "?";
           }
           ctx.font = `bold ${numFontSize}px rubik, sans`;
           ctx.shadowOffsetY = 1 * pixelMult;

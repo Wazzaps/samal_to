@@ -38,5 +38,16 @@ export default {
 </script>
 
 <style>
+button.btn-primary {
+  background: linear-gradient(#1a89ff, #006cdf);
+  box-shadow: 0 4px 16px -2px #6594c7;
+  border-radius: 4px;
+}
+
+button.btn-danger {
+  background: linear-gradient(#D23C40, #B93438);
+  box-shadow: 0 4px 16px -2px #db6264;
+  border-radius: 4px;
+}
 
 </style>

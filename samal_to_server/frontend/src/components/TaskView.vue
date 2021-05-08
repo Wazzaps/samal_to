@@ -111,23 +111,28 @@
     </b-list-group>
     </div>
 
-    <b-button variant="primary" class="float-right mb-3 pr-4 pl-3 py-2"><b-icon-plus/> Add</b-button>
+    <b-button
+      @click="addShift"
+      variant="primary"
+      class="float-right mb-3 pr-4 pl-3 py-2"
+    ><b-icon-plus/> Add</b-button>
 
     <b-modal id="shift-modal" title="Edit Shift">
-      <h5>Start date:</h5>
-      <b-row>
-        <b-col class="pr-1"><b-datepicker/></b-col>
-        <b-col class="pl-1"><b-timepicker/></b-col>
-      </b-row>
-      <h5 class="mt-4">End date:</h5>
-      <b-row>
-        <b-col class="pr-1"><b-datepicker/></b-col>
-        <b-col class="pl-1"><b-timepicker/></b-col>
-      </b-row>
+      <h5>Shift time:</h5>
+      <center>
+        <date-picker
+          v-model="calValue"
+          :attributes='calAttrs'
+          :is24hr="true"
+          mode="dateTime"
+          is-range
+        />
+      </center>
+
       <h5 class="mt-4">Assigned:</h5>
       <b-form-select
         @change="updateShiftAssignment"
-        :value="currentTask.shifts[modalShiftId].assigned"
+        :value="currentTask.shifts[0] ? currentTask.shifts[modalShiftId].assigned : null"
       >
         <b-form-select-option :value="null">Not assigned</b-form-select-option>
         <b-form-select-option
@@ -138,8 +143,11 @@
       </b-form-select>
 
       <template #modal-footer="{ ok }">
+        <b-button variant="danger" @click="deleteShift()">
+          Delete Shift
+        </b-button>
         <b-button variant="primary" @click="ok()">
-          Save
+          OK
         </b-button>
       </template>
     </b-modal>
@@ -148,6 +156,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import DatePicker from 'v-calendar/lib/components/date-picker.umd'
 
 function objectKeyByValue (obj, val) {
   return Object.entries(obj).find(i => i[1] === val)[0];
@@ -162,10 +171,21 @@ export default {
   data: () => ({
     modalShiftId: 0,
     tagUpdateAge: 0,
+    calAttrs: [
+      {
+        key: 'today',
+        highlight: {
+          fillMode: 'outline',
+        },
+        dates: new Date(),
+      },
+    ],
+    calValue: {}
   }),
   props: {
   },
   components: {
+    DatePicker,
   },
   computed: {
     ...mapState({
@@ -184,6 +204,8 @@ export default {
         return state.tasks[this.$route.params.id];
       },
       groupedShifts(state) {
+        this.tagUpdateAge; // Reactivity hack
+
         let shifts = [];
         for (const [shiftId, shift] of Object.entries(this.currentTask.shifts)) {
           shifts.push({shiftId, shift});
@@ -207,15 +229,26 @@ export default {
           curDate = nextDate;
         }
         return days;
-      }
+      },
     }),
 
     currentTaskId() {
       return this.$route.params.id;
     }
   },
+  watch: {
+    calValue(newDate) {
+      this.$store.commit('shiftSetTime', [this.$route.params.id, this.modalShiftId, newDate]);
+    }
+  },
   methods: {
     openShiftEditModal(shiftId) {
+      const shift = this.currentTask.shifts[shiftId];
+      this.calValue = {
+        start: new Date(shift.start * 1000),
+        end: new Date((shift.start + shift.duration) * 1000),
+      };
+
       this.modalShiftId = shiftId;
     },
 
@@ -349,6 +382,32 @@ export default {
       this.$forceUpdate();
       this.tagUpdateAge++;
     },
+
+    async addShift() {
+      let newShiftId = await this.$store.dispatch('taskAddShift', this.currentTaskId);
+      this.openShiftEditModal(newShiftId);
+
+      // Reactivity hack
+      this.$forceUpdate();
+      this.tagUpdateAge++;
+
+      // Show modal
+      this.$bvModal.show('shift-modal');
+    },
+
+    deleteShift() {
+      // Hide modal
+      this.$bvModal.hide('shift-modal');
+      const modalShiftId = this.modalShiftId;
+      this.modalShiftId = 0;
+
+      // Delete the shift
+      this.$store.commit('taskDeleteShift', [this.currentTaskId, modalShiftId]);
+
+      // Reactivity hack
+      this.$forceUpdate();
+      this.tagUpdateAge++;
+    }
   }
 }
 </script>
@@ -356,5 +415,26 @@ export default {
 <style scoped>
 .description {
   overflow-y: auto !important;
+}
+</style>
+
+<style>
+.vc-date-time {
+  /* margin: auto !important; */
+  text-align: center;
+  padding-left: 0.3rem;
+  padding-right: 1rem;
+}
+
+.vc-time {
+  justify-content: center;
+}
+
+.vc-date {
+  display: inline-flex !important;
+}
+
+.modal-footer {
+  justify-content: space-between;
 }
 </style>
