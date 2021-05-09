@@ -6,8 +6,17 @@
       </b-button>
     </center> -->
 
-    <b-button class="mb-3 ml-3 float-right" variant="outline-primary">Share</b-button>
-    <b-button class="mb-3 float-right" variant="primary" @click="autoSolve" :disabled="autoSolveDisabled">Auto Assign</b-button>
+    <b-button
+      @click="shareToPng"
+      class="mb-3 ml-3 float-right"
+      variant="outline-primary"
+    >Share</b-button>
+    <b-button
+      @click="autoSolve"
+      :disabled="autoSolveDisabled"
+      class="mb-3 float-right"
+      variant="primary"
+    >Auto Assign</b-button>
 
     <canvas id="timetable_contents"/>
 
@@ -114,7 +123,7 @@ export default {
       ctx.textBaseline = "alphabetic";
 
       // -- Draw bg --
-      ctx.fillStyle = 'rgba(256, 256, 256, 0.3)';
+      ctx.fillStyle = 'rgb(256, 256, 256)';
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
       // Draw timebar lines
@@ -410,7 +419,36 @@ export default {
       if (res.solution_type != "Infeasible") {
         this.applySolution(res.shifts);
       }
-    }
+    },
+    shiftMinStartDate() {
+      let minStartTime = Infinity;
+      for (const task of Object.values(this.$store.state.tasks)) {
+        for (const shift of Object.values(task.shifts)) {
+          if (shift.start < minStartTime) {
+            minStartTime = shift.start;
+          }
+        }
+      }
+
+      return new Date(minStartTime * 1000).toLocaleString('sv', {timeZoneName: 'short'}).split(" ")[0];
+    },
+    shareToPng() {
+      const canvas = document.getElementById('timetable_contents');
+      const title = `Timetable for ${this.shiftMinStartDate()}`;
+      canvas.toBlob((blob) => {
+        let file = new File([blob], "timetable.jpg", {type: 'image/png'});
+        let filesArray = [file];
+        const sharePayload = {
+          title: title,
+          files: filesArray
+        };
+        if (navigator.canShare && navigator.canShare(sharePayload)) {
+          navigator.share(sharePayload);
+        } else {
+          open().document.write('<title>' + title + '</title><img src="' + canvas.toDataURL() + '"/>');
+        }
+      });
+    },
   },
   mounted() {
     this.renderTimetable();
