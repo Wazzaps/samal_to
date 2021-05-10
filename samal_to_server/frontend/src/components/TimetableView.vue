@@ -12,6 +12,11 @@
       variant="outline-primary"
     >Share</b-button>
     <b-button
+      @click="shareToJson"
+      class="mb-3 ml-3 float-right"
+      variant="outline-primary"
+    >Share Link</b-button>
+    <b-button
       @click="autoSolve"
       :disabled="autoSolveDisabled"
       class="mb-3 float-right"
@@ -448,6 +453,10 @@ export default {
           open().document.write('<title>' + title + '</title><img src="' + canvas.toDataURL() + '"/>');
         }
       });
+    },
+    shareToJson() {
+      const s = window.LZUTF8.compress(JSON.stringify(this.$store.state), {outputEncoding: "Base64"});
+      console.log(s);
     },
   },
   mounted() {

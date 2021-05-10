@@ -217,6 +217,13 @@ const store = new Vuex.Store({
     },
 
     deletePerson(state, personId) {
+      for (const task of Object.values(state.tasks)) {
+        for (const shift of Object.values(task.shifts)) {
+          if (shift.assigned == personId) {
+            shift.assigned = null;
+          }
+        }
+      }
       delete state.people[personId];
     },
 
