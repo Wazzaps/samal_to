@@ -410,7 +410,7 @@ export default {
 
       this.autoSolveDisabled = true;
 
-      let res = await fetch("http://api.samal.to/v1/solve", {
+      let res = await fetch("https://jn3b6iu9s3.execute-api.eu-central-1.amazonaws.com/default/samal_to", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

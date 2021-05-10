@@ -221,8 +221,13 @@ def solve(people, settings, shifts):
     print('Solving...')
 
     solver = cp_model.CpSolver()
-    solver.parameters.num_search_workers = 4
-    solver.parameters.max_time_in_seconds = settings.get('timeout', 5)
+    solver.parameters.num_search_workers = 6
+
+    timeout = settings.get('timeout', 5)
+    if timeout > 10:
+        timeout = 10
+
+    solver.parameters.max_time_in_seconds = timeout
     ans = solver.SolveWithSolutionCallback(model, SolutionPrinter())
 
     result = {}

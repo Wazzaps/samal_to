@@ -1,1 +1,8 @@
 */__pycache__
+samal_to_server/dist
+samal_to_server/minidist
+samal_to_server/notdist
+samal_to_server/ortools_dist
+samal_to_server/dist.zip
+samal_to_server/mini_dist.zip
+samal_to_server/orttols_dist.zip
