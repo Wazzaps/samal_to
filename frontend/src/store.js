@@ -318,10 +318,10 @@ window.exampleData = function () {
         mustHaveTags: [],
         mustNotHaveTags: ["0"],
         shifts: {
-          0: { start: baseTime + timeMult * (12), duration: timeMult * (4), assigned: "0" },
-          1: { start: baseTime + timeMult * (16), duration: timeMult * (3), assigned: "0" },
-          2: { start: baseTime + timeMult * (24), duration: timeMult * (2), assigned: "0" },
-          3: { start: baseTime + timeMult * (24+2), duration: timeMult * (2), assigned: "0" },
+          0: { start: baseTime + timeMult * (12), duration: timeMult * (4), assigned: "1" },
+          1: { start: baseTime + timeMult * (16), duration: timeMult * (3), assigned: null },
+          2: { start: baseTime + timeMult * (24), duration: timeMult * (2), assigned: "1" },
+          3: { start: baseTime + timeMult * (24+2), duration: timeMult * (2), assigned: null },
         },
       },
       1: {

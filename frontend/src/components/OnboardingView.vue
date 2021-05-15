@@ -18,6 +18,12 @@
         class="mt-4 createbtn"
         variant="primary"
       >Create Room</b-button>
+      <br>
+      <b-button
+        href="/#/example/"
+        class="mt-3 examplebtn"
+        variant="link"
+      >Try using example data</b-button>
     </center>
     <footer>
       <em>
@@ -104,7 +110,7 @@ p {
 footer {
   max-width: 15rem;
   margin: auto;
-  margin-top: 2.5rem;
+  margin-top: 1.5rem;
   text-align: center;
   color: #777;
   font-size: 0.8rem;

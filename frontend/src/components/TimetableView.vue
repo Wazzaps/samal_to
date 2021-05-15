@@ -339,8 +339,11 @@ export default {
         }
       };
 
+      let assignments = {};
+
       Object.values(this.$store.state.tasks).forEach(task => {
         Object.values(task.shifts).forEach(shift => {
+          assignments[req.shifts.length] = shift.assigned;
           req.shifts.push({
             time: parseInt((shift.start - minTime) / 60),
             duration: parseInt(shift.duration / 60),
@@ -350,24 +353,27 @@ export default {
         });
       });
 
-      Object.values(this.$store.state.people).forEach(person => {
+      Object.entries(this.$store.state.people).forEach(([personIdx, person]) => {
         const personObj = {
             restricted_tasks: [],
             assigned_tasks: [],
             prefers_longer_sleep: false
         };
-        req.shifts.forEach((shift, shift_idx) => {
+        req.shifts.forEach((shift, shiftIdx) => {
           for (const tag of shift.task.mustNotHaveTags) {
             if (person.tags.includes(tag)) {
-              personObj.restricted_tasks.push(shift_idx);
+              personObj.restricted_tasks.push(shiftIdx);
               return;
             }
           }
           for (const tag of shift.task.mustHaveTags) {
             if (!person.tags.includes(tag)) {
-              personObj.restricted_tasks.push(shift_idx);
+              personObj.restricted_tasks.push(shiftIdx);
               return;
             }
+          }
+          if (assignments[shiftIdx] === personIdx) {
+            personObj.assigned_tasks.push(shiftIdx);
           }
         });
         req.people.push(personObj);
@@ -376,6 +382,8 @@ export default {
       req.shifts.forEach(shift => {
         shift.task = undefined;
       });
+
+      console.log("Request:", req);
 
       return req;
     },
@@ -400,19 +408,28 @@ export default {
 
       this.autoSolveDisabled = true;
 
-      let res = await fetch("https://jn3b6iu9s3.execute-api.eu-central-1.amazonaws.com/default/samal_to", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(req)
-      });
-      res = await res.json();
+      let res = null;
+      try {
+        res = await fetch("https://jn3b6iu9s3.execute-api.eu-central-1.amazonaws.com/default/samal_to", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(req)
+        });
+        res = await res.json();
+      } catch (e) {
+        alert(e);
+      }
+
+      console.log("Solution:", res);
 
       this.autoSolveDisabled = false;
 
-      if (res.solution_type != "Infeasible") {
+      if (res && res.solution_type != "Infeasible") {
         this.applySolution(res.shifts);
+      } else {
+        alert("Couldn't find a solution :(");
       }
     },
     shiftMinStartDate() {
