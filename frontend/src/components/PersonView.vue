@@ -1,5 +1,14 @@
 <template>
   <div>
+    <div class="d-flex flex-row justify-content-center my-3">
+      <b-button @click="duplicateThisPerson" variant="primary" size="lg" class="d-flex flex-row align-items-center justify-content-center mr-3">
+        <b-icon-files class="mr-2" font-scale="0.8"/> Duplicate
+      </b-button>
+      <b-button @click="deleteThisPerson" variant="danger" size="lg" class="d-flex flex-row align-items-center justify-content-center">
+        <b-icon-trash-fill class="mr-2" variant="white" font-scale="0.8"/> Delete
+      </b-button>
+    </div>
+    <hr/>
     <b-input-group class="mb-3">
       <template #prepend>
         <b-input-group-text><b-icon-telephone/></b-input-group-text>
@@ -145,7 +154,11 @@ export default {
         }
         return days;
       }
-    })
+    }),
+
+    roomID() {
+      return this.$router.currentRoute.params.room;
+    },
   },
   methods: {
     addTag(tagId) {
@@ -225,6 +238,16 @@ export default {
       const durationHr = parseInt(shift.duration / (60 * 60));
       const durationMin = (shift.duration % (60 * 60));
       return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 4 ? '' : 's'})`;
+    },
+
+    deleteThisPerson() {
+      this.$store.commit('deletePerson', this.$route.params.id);
+      this.$router.push(`/${this.roomID}/people`);
+    },
+
+    async duplicateThisPerson() {
+      let newPersonId = await this.$store.dispatch('duplicatePerson', this.$route.params.id);
+      this.$router.replace(`/${this.roomID}/people/${newPersonId}`);
     },
   }
 }

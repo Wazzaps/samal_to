@@ -31,6 +31,13 @@ const store = new Vuex.Store({
       };
     },
 
+    duplicateTask(state, [newTaskId, srcTaskId]) {
+      state.tasks[newTaskId] = JSON.parse(JSON.stringify(state.tasks[srcTaskId]));
+      state.tasks[newTaskId].name += " (copy)";
+      console.log(state.tasks[srcTaskId]);
+      console.log(state.tasks[newTaskId]);
+    },
+
     deletePerson(state, personId) {
       for (const task of Object.values(state.tasks)) {
         for (const shift of Object.values(task.shifts)) {
@@ -40,6 +47,12 @@ const store = new Vuex.Store({
         }
       }
       delete state.people[personId];
+    },
+
+    duplicatePerson(state, [newPersonId, srcPersonId]) {
+      state.people[newPersonId] = JSON.parse(JSON.stringify(state.people[srcPersonId]));
+      state.people[newPersonId].name += " (copy)";
+      state.people[newPersonId].ident_color = newPersonId % 6;
     },
 
     deleteTask(state, taskId) {
@@ -160,6 +173,19 @@ const store = new Vuex.Store({
       commit('addPerson', [availableId, availableNum]);
       return availableId;
     },
+    duplicatePerson({ commit, state }, personId) {
+      let availableId = -1;
+      let True = true;
+      for (let i = 0; True; i++) {
+        if (!state.people[i]) {
+          availableId = i;
+          break;
+        }
+      }
+
+      commit('duplicatePerson', [availableId, personId]);
+      return availableId;
+    },
     addTask({ commit, state }) {
       let availableId = -1;
       let True = true;
@@ -171,6 +197,19 @@ const store = new Vuex.Store({
       }
 
       commit('addTask', availableId);
+      return availableId;
+    },
+    duplicateTask({ commit, state }, taskId) {
+      let availableId = -1;
+      let True = true;
+      for (let i = 0; True; i++) {
+        if (!state.tasks[i]) {
+          availableId = i;
+          break;
+        }
+      }
+
+      commit('duplicateTask', [availableId, taskId]);
       return availableId;
     },
     taskAddShift({ commit, state }, taskId) {

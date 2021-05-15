@@ -1,5 +1,14 @@
 <template>
   <div>
+    <div class="d-flex flex-row justify-content-center my-3">
+      <b-button @click="duplicateThisTask" variant="primary" size="lg" class="d-flex flex-row align-items-center justify-content-center mr-3">
+        <b-icon-files class="mr-2" font-scale="0.8"/> Duplicate
+      </b-button>
+      <b-button @click="deleteThisTask" variant="danger" size="lg" class="d-flex flex-row align-items-center justify-content-center">
+        <b-icon-trash-fill class="mr-2" variant="white" font-scale="0.8"/> Delete
+      </b-button>
+    </div>
+    <hr/>
     <b-input-group class="mb-3">
       <template #prepend>
         <b-input-group-text><b-icon-card-text/></b-input-group-text>
@@ -234,11 +243,19 @@ export default {
 
     currentTaskId() {
       return this.$route.params.id;
-    }
+    },
+
+    roomID() {
+      return this.$router.currentRoute.params.room;
+    },
   },
   watch: {
     calValue(newDate) {
       this.$store.commit('shiftSetTime', [this.$route.params.id, this.modalShiftId, newDate]);
+
+      // Reactivity hack
+      this.$forceUpdate();
+      this.tagUpdateAge++;
     }
   },
   methods: {
@@ -270,7 +287,7 @@ export default {
 
     formatShiftDuration(shift) {
       const durationHr = parseInt(shift.duration / (60 * 60));
-      const durationMin = (shift.duration % (60 * 60));
+      const durationMin = ((shift.duration / 60) % 60);
       return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 4 ? '' : 's'})`;
     },
 
@@ -407,7 +424,17 @@ export default {
       // Reactivity hack
       this.$forceUpdate();
       this.tagUpdateAge++;
-    }
+    },
+
+    deleteThisTask() {
+      this.$store.commit('deleteTask', this.$route.params.id);
+      this.$router.push(`/${this.roomID}/tasks`);
+    },
+
+    async duplicateThisTask() {
+      let newTaskId = await this.$store.dispatch('duplicateTask', this.$route.params.id);
+      this.$router.replace(`/${this.roomID}/tasks/${newTaskId}`);
+    },
   }
 }
 </script>

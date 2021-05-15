@@ -26,9 +26,7 @@
           @change="updatePersonName"
           placeholder="Name..."
         />
-        <b-button class="pad d-flex flex-row justify-content-center py-3" variant="link" @click="deleteThisPerson">
-          <b-icon-trash-fill variant="danger" font-scale="1.5"/>
-        </b-button>
+        <div class="pad"/>
       </b-container>
 
       <!-- Item view header (task view) -->
@@ -43,16 +41,14 @@
           @change="updateTaskName"
           placeholder="Name..."
         />
-        <b-button class="pad d-flex flex-row justify-content-center py-3" variant="link" @click="deleteThisTask">
-          <b-icon-trash-fill variant="danger" font-scale="1.5"/>
-        </b-button>
+        <div class="pad"/>
       </b-container>
     </header>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
+  name: 'NavHeader',
   computed: {
     roomID() {
       return this.$router.currentRoute.params.room;
@@ -69,16 +65,6 @@ export default {
 
     updateTaskName(name) {
       this.$store.commit('taskUpdateName', [this.$route.params.id, name]);
-    },
-
-    deleteThisPerson() {
-      this.$store.commit('deletePerson', this.$route.params.id);
-      this.$router.push(`/${this.roomID}/people`);
-    },
-
-    deleteThisTask() {
-      this.$store.commit('deleteTask', this.$route.params.id);
-      this.$router.push(`/${this.roomID}/tasks`);
     },
   },
 }
