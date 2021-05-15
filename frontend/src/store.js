@@ -5,6 +5,194 @@ const timeMult = 60 * 60; // Hours -> Seconds
 
 const store = new Vuex.Store({
   state: {
+    tags: {},
+    people: {},
+    tasks: {},
+  },
+  mutations: {
+    addPerson(state, [personId, personNum]) {
+      state.people[personId] = {
+        num: personNum,
+        name: "",
+        phoneNum: "",
+        tags: [],
+        ident_color: personId % 6,
+        // ident_pattern: pattern,
+      };
+    },
+
+    addTask(state, taskId) {
+      state.tasks[taskId] = {
+        name: "",
+        description: "",
+        mustHaveTags: [],
+        mustNotHaveTags: [],
+        shifts: {},
+      };
+    },
+
+    deletePerson(state, personId) {
+      for (const task of Object.values(state.tasks)) {
+        for (const shift of Object.values(task.shifts)) {
+          if (shift.assigned == personId) {
+            shift.assigned = null;
+          }
+        }
+      }
+      delete state.people[personId];
+    },
+
+    deleteTask(state, taskId) {
+      delete state.tasks[taskId];
+    },
+
+    personAddTag(state, [personId, tagId]) {
+      state.people[personId].tags.push(tagId);
+    },
+
+    personRemoveTag(state, [personId, tagId]) {
+      state.people[personId].tags.splice(
+        state.people[personId].tags.indexOf(tagId),
+        1
+      );
+    },
+
+    taskAssignShift(state, [taskId, shiftId, personId]) {
+      state.tasks[taskId].shifts[shiftId].assigned = personId;
+    },
+
+    taskAddRequiredTag(state, [taskId, tagId]) {
+      state.tasks[taskId].mustHaveTags.push(tagId);
+    },
+
+    taskRemoveRequiredTag(state, [taskId, tagId]) {
+      state.tasks[taskId].mustHaveTags.splice(
+        state.tasks[taskId].mustHaveTags.indexOf(tagId),
+        1
+      );
+    },
+
+    taskAddDisqualifyingTag(state, [taskId, tagId]) {
+      state.tasks[taskId].mustNotHaveTags.push(tagId);
+    },
+
+    taskRemoveDisqualifyingTag(state, [taskId, tagId]) {
+      state.tasks[taskId].mustNotHaveTags.splice(
+        state.tasks[taskId].mustNotHaveTags.indexOf(tagId),
+        1
+      );
+    },
+
+    taskAddShift(state, [taskId, shiftId]) {
+      let currentDate = new Date();
+      currentDate.setMinutes(0, 0, 0);
+      state.tasks[taskId].shifts[shiftId] = {
+        start: currentDate.getTime() / 1000,
+        duration: 60 * 60, // 1 Hour
+        assigned: null
+      };
+    },
+
+    taskDeleteShift(state, [taskId, shiftId]) {
+      delete state.tasks[taskId].shifts[shiftId];
+    },
+
+    shiftSetTime(state, [taskId, shiftId, timeRange]) {
+      state.tasks[taskId].shifts[shiftId].start = parseInt(timeRange.start.getTime() / 1000);
+      state.tasks[taskId].shifts[shiftId].duration = parseInt(
+        (timeRange.end.getTime() - timeRange.start.getTime()) / 1000
+      );
+    },
+
+    personUpdatePhoneNum(state, [personId, phoneNum]) {
+      state.people[personId].phoneNum = phoneNum;
+    },
+
+    personUpdateName(state, [personId, name]) {
+      state.people[personId].name = name;
+    },
+
+    taskUpdateName(state, [taskId, name]) {
+      state.tasks[taskId].name = name;
+    },
+
+    taskUpdateDescription(state, [taskId, description]) {
+      state.tasks[taskId].description = description;
+    },
+
+    createTag(state, [tagId, tagName]) {
+      state.tags[tagId] = tagName;
+    },
+
+    assignMultipleShifts(state, assignments) {
+      assignments.forEach(([taskId, shiftId, personId]) => {
+        state.tasks[taskId].shifts[shiftId].assigned = personId;
+      })
+    },
+
+    rebaseShifts(state, delta) {
+      for (const task of Object.values(state.tasks)) {
+        for (const shift of Object.values(task.shifts)) {
+          shift.start += delta;
+        }
+      }
+    },
+  },
+  actions: {
+    addPerson({ commit, state }) {
+      let availableId = -1;
+      let True = true;
+      for (let i = 0; True; i++) {
+        if (!state.people[i]) {
+          availableId = i;
+          break;
+        }
+      }
+
+      let availableNum = -1;
+      for (let i = 1; True; i++) {
+        if (Object.values(state.people).every(p => p.num != i)) {
+          availableNum = i;
+          break;
+        }
+      }
+
+      commit('addPerson', [availableId, availableNum]);
+      return availableId;
+    },
+    addTask({ commit, state }) {
+      let availableId = -1;
+      let True = true;
+      for (let i = 0; True; i++) {
+        if (!state.tasks[i]) {
+          availableId = i;
+          break;
+        }
+      }
+
+      commit('addTask', availableId);
+      return availableId;
+    },
+    taskAddShift({ commit, state }, taskId) {
+      let availableId = -1;
+      let True = true;
+      for (let i = 0; True; i++) {
+        if (!state.tasks[taskId].shifts[i]) {
+          availableId = i;
+          break;
+        }
+      }
+
+      commit('taskAddShift', [taskId, availableId]);
+      return availableId;
+    }
+  }
+});
+
+export default store;
+
+window.exampleData = function () {
+  store.replaceState({
     tags: {
       0: "Soap allergy",
       1: "Driver's license",
@@ -193,185 +381,5 @@ const store = new Vuex.Store({
         },
       },
     },
-  },
-  mutations: {
-    addPerson(state, [personId, personNum]) {
-      state.people[personId] = {
-        num: personNum,
-        name: "",
-        phoneNum: "",
-        tags: [],
-        ident_color: personId % 6,
-        // ident_pattern: pattern,
-      };
-    },
-
-    addTask(state, taskId) {
-      state.tasks[taskId] = {
-        name: "",
-        description: "",
-        mustHaveTags: [],
-        mustNotHaveTags: [],
-        shifts: {},
-      };
-    },
-
-    deletePerson(state, personId) {
-      for (const task of Object.values(state.tasks)) {
-        for (const shift of Object.values(task.shifts)) {
-          if (shift.assigned == personId) {
-            shift.assigned = null;
-          }
-        }
-      }
-      delete state.people[personId];
-    },
-
-    deleteTask(state, taskId) {
-      delete state.tasks[taskId];
-    },
-
-    personAddTag(state, [personId, tagId]) {
-      state.people[personId].tags.push(tagId);
-    },
-
-    personRemoveTag(state, [personId, tagId]) {
-      state.people[personId].tags.splice(
-        state.people[personId].tags.indexOf(tagId),
-        1
-      );
-    },
-
-    taskAssignShift(state, [taskId, shiftId, personId]) {
-      state.tasks[taskId].shifts[shiftId].assigned = personId;
-    },
-
-    taskAddRequiredTag(state, [taskId, tagId]) {
-      state.tasks[taskId].mustHaveTags.push(tagId);
-    },
-
-    taskRemoveRequiredTag(state, [taskId, tagId]) {
-      state.tasks[taskId].mustHaveTags.splice(
-        state.tasks[taskId].mustHaveTags.indexOf(tagId),
-        1
-      );
-    },
-
-    taskAddDisqualifyingTag(state, [taskId, tagId]) {
-      state.tasks[taskId].mustNotHaveTags.push(tagId);
-    },
-
-    taskRemoveDisqualifyingTag(state, [taskId, tagId]) {
-      state.tasks[taskId].mustNotHaveTags.splice(
-        state.tasks[taskId].mustNotHaveTags.indexOf(tagId),
-        1
-      );
-    },
-
-    taskAddShift(state, [taskId, shiftId]) {
-      let currentDate = new Date();
-      currentDate.setMinutes(0, 0, 0);
-      state.tasks[taskId].shifts[shiftId] = {
-        start: currentDate.getTime() / 1000,
-        duration: 60 * 60, // 1 Hour
-        assigned: null
-      };
-    },
-
-    taskDeleteShift(state, [taskId, shiftId]) {
-      delete state.tasks[taskId].shifts[shiftId];
-    },
-
-    shiftSetTime(state, [taskId, shiftId, timeRange]) {
-      state.tasks[taskId].shifts[shiftId].start = parseInt(timeRange.start.getTime() / 1000);
-      state.tasks[taskId].shifts[shiftId].duration = parseInt(
-        (timeRange.end.getTime() - timeRange.start.getTime()) / 1000
-      );
-    },
-
-    personUpdatePhoneNum(state, [personId, phoneNum]) {
-      state.people[personId].phoneNum = phoneNum;
-    },
-
-    personUpdateName(state, [personId, name]) {
-      state.people[personId].name = name;
-    },
-
-    taskUpdateName(state, [taskId, name]) {
-      state.tasks[taskId].name = name;
-    },
-
-    taskUpdateDescription(state, [taskId, description]) {
-      state.tasks[taskId].description = description;
-    },
-
-    createTag(state, [tagId, tagName]) {
-      state.tags[tagId] = tagName;
-    },
-
-    assignMultipleShifts(state, assignments) {
-      assignments.forEach(([taskId, shiftId, personId]) => {
-        state.tasks[taskId].shifts[shiftId].assigned = personId;
-      })
-    },
-
-    rebaseShifts(state, delta) {
-      for (const task of Object.values(state.tasks)) {
-        for (const shift of Object.values(task.shifts)) {
-          shift.start += delta;
-        }
-      }
-    },
-  },
-  actions: {
-    addPerson({ commit, state }) {
-      let availableId = -1;
-      let True = true;
-      for (let i = 0; True; i++) {
-        if (!state.people[i]) {
-          availableId = i;
-          break;
-        }
-      }
-
-      let availableNum = -1;
-      for (let i = 1; True; i++) {
-        if (Object.values(state.people).every(p => p.num != i)) {
-          availableNum = i;
-          break;
-        }
-      }
-
-      commit('addPerson', [availableId, availableNum]);
-      return availableId;
-    },
-    addTask({ commit, state }) {
-      let availableId = -1;
-      let True = true;
-      for (let i = 0; True; i++) {
-        if (!state.tasks[i]) {
-          availableId = i;
-          break;
-        }
-      }
-
-      commit('addTask', availableId);
-      return availableId;
-    },
-    taskAddShift({ commit, state }, taskId) {
-      let availableId = -1;
-      let True = true;
-      for (let i = 0; True; i++) {
-        if (!state.tasks[taskId].shifts[i]) {
-          availableId = i;
-          break;
-        }
-      }
-
-      commit('taskAddShift', [taskId, availableId]);
-      return availableId;
-    }
-  }
-});
-
-export default store;
+  });
+}

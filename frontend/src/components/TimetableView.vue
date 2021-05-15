@@ -6,6 +6,7 @@
       variant="outline-primary"
     >Share PNG</b-button>
     <b-button
+      id="share-to-json"
       @click="shareToJson"
       class="mb-3 ml-2 float-right"
       variant="outline-primary"
@@ -17,6 +18,11 @@
       variant="primary"
     >Auto Assign</b-button>
 
+
+    <b-popover target="share-to-json" placement="bottom" variant="success">
+      <strong>Link copied!</strong>
+    </b-popover>
+
     <canvas id="timetable_contents"/>
   </div>
 </template>
@@ -26,8 +32,16 @@ export default {
   data: () => ({
     autoSolveDisabled: false,
   }),
+  computed: {
+    roomID() {
+      return this.$router.currentRoute.params.room;
+    },
+  },
   methods: {
     renderTimetable() {
+      if (!this.$store.state || !this.$store.state.tasks) {
+        return;
+      }
       const tasks = Object.entries(this.$store.state.tasks);
       let tracks = [];
       let minTime = Infinity;
@@ -431,8 +445,14 @@ export default {
       });
     },
     shareToJson() {
-      const s = window.LZUTF8.compress(JSON.stringify(this.$store.state), {outputEncoding: "Base64"});
-      console.log(s);
+      let s = window.LZUTF8.compress(JSON.stringify(this.$store.state), {outputEncoding: "Base64"});
+      s = s.replace(/\+/g, "-").replace(/\//g, "_");
+      navigator.clipboard.writeText(`${location.origin}/#/${this.roomID}/import/${s}`);
+
+      this.$root.$emit('bv::show::popover', 'share-to-json');
+      setTimeout(() => {
+        this.$root.$emit('bv::hide::popover', 'share-to-json');
+      }, 1000);
     },
   },
   mounted() {

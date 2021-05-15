@@ -9,7 +9,7 @@
     <p>Add a description for clarity, Add "Required" and "Disqualifying" tags to restrict assignment</p>
     <p>Create all shifts that need to be filled</p>
     <h3>2. Create people</h3>
-    <p>Add contact info and tags to restrict assignment</p>
+    <p>Add contact info and tags</p>
     <h3>3. Press "Auto Assign" in "Table"</h3>
     <p>In a couple of seconds you should have a fair timetable, press "Share PNG" to share it!</p>
     <center>

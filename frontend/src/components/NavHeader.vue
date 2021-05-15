@@ -11,7 +11,7 @@
           <b-nav-item :to="`/${roomID}/tasks`" exact exact-active-class="active">Tasks</b-nav-item>
           <b-nav-item :to="`/${roomID}/people`" exact exact-active-class="active">People</b-nav-item>
         </b-nav>
-        <b-button variant="link" v-b-modal.modal-1><b-icon-three-dots-vertical/></b-button>
+        <b-button variant="link" v-b-modal.misc-modal><b-icon-three-dots-vertical/></b-button>
       </b-container>
 
       <!-- Item view header (person view) -->
