@@ -74,6 +74,14 @@ const store = new Vuex.Store({
       state.tasks[taskId].shifts[shiftId].assigned = personId;
     },
 
+    unassignAllShifts(state) {
+      for (const task of Object.values(state.tasks)) {
+        for (const shift of Object.values(task.shifts)) {
+          shift.assigned = null;
+        }
+      }
+    },
+
     taskAddRequiredTag(state, [taskId, tagId]) {
       state.tasks[taskId].mustHaveTags.push(tagId);
     },

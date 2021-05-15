@@ -26,19 +26,28 @@
         </div>
       </b-list-group-item>
     </b-list-group>
-    <b-button
-      @click="addTask"
-      variant="primary"
-      class="float-right mb-3 pr-4 pl-3 py-2"
-    ><b-icon-plus/> Add</b-button>
-    <b-button
-      @click="openRebaseModal"
-      v-b-modal.rebase-modal
-      class="mb-3 mr-3 float-right"
-      variant="outline-primary"
-    >
-      <span class="h-1em">Move All Shifts</span>
-    </b-button>
+    <div class="py-2">
+      <b-button
+        @click="addTask"
+        variant="primary"
+        class="mb-3 mr-2 pr-3 pl-1 py-2"
+      ><b-icon-plus/> Add Task</b-button>
+      <b-button
+        @click="openRebaseModal"
+        v-b-modal.rebase-modal
+        class="mb-3 mr-2"
+        variant="outline-primary"
+      >
+        <span class="h-1em">Move All Shifts</span>
+      </b-button>
+      <b-button
+        v-b-modal.unassign-modal
+        class="mb-3 mr-2"
+        variant="danger"
+      >
+        <span class="h-1em">Unassign All Shifts</span>
+      </b-button>
+    </div>
 
     <!-- Rebase modal -->
     <b-modal
@@ -54,6 +63,17 @@
           mode="dateTime"
         />
       </center>
+    </b-modal>
+
+    <!-- Unassign all modal -->
+    <b-modal
+      @ok="applyUnassign"
+      ok-title="Unassign All Shifts"
+      ok-variant="danger"
+      id="unassign-modal"
+      title="Are you sure?"
+    >
+      <strong>Would you like to remove all shift assignments?</strong>
     </b-modal>
   </div>
 </template>
@@ -98,6 +118,10 @@ export default {
     async addTask() {
       let newTaskId = await this.$store.dispatch('addTask');
       this.$router.push(`/${this.roomID}/tasks/${newTaskId}`);
+    },
+
+    applyUnassign() {
+      this.$store.commit('unassignAllShifts');
     }
   },
 }

@@ -22,11 +22,13 @@
         </div>
       </b-list-group-item>
     </b-list-group>
-    <b-button
-      @click="addPerson"
-      variant="primary"
-      class="float-right mb-3 pr-4 pl-3 py-2"
-    ><b-icon-plus/> Add</b-button>
+    <div>
+      <b-button
+        @click="addPerson"
+        variant="primary"
+        class="mb-3 mr-2 pr-3 pl-1 py-2"
+      ><b-icon-plus/> Add Person</b-button>
+    </div>
   </div>
 </template>
 

@@ -1,22 +1,24 @@
 <template>
   <div>
-    <b-button
-      @click="shareToPng"
-      class="mb-3 ml-2 float-right"
-      variant="outline-primary"
-    >Share PNG</b-button>
-    <b-button
-      id="share-to-json"
-      @click="shareToJson"
-      class="mb-3 ml-2 float-right"
-      variant="outline-primary"
-    >Share Link</b-button>
-    <b-button
-      @click="autoSolve"
-      :disabled="autoSolveDisabled"
-      class="mb-3 float-right"
-      variant="primary"
-    >Auto Assign</b-button>
+    <div>
+      <b-button
+        @click="autoSolve"
+        :disabled="autoSolveDisabled"
+        class="mb-3"
+        variant="primary"
+      >Auto Assign</b-button>
+      <b-button
+        id="share-to-json"
+        @click="shareToJson"
+        class="mb-3 ml-2"
+        variant="outline-primary"
+      >Share Link</b-button>
+      <b-button
+        @click="shareToPng"
+        class="mb-3 ml-2"
+        variant="outline-primary"
+      >Share PNG</b-button>
+    </div>
 
 
     <b-popover target="share-to-json" placement="bottom" variant="success">
