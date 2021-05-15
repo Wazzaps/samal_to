@@ -124,7 +124,7 @@
       @click="addShift"
       variant="primary"
       class="float-right mb-3 pr-4 pl-3 py-2"
-    ><b-icon-plus/> Add</b-button>
+    ><b-icon-plus/> Add Shift</b-button>
 
     <b-modal id="shift-modal" title="Edit Shift">
       <h5>Shift time:</h5>
