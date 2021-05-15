@@ -189,7 +189,8 @@ export default {
         dates: new Date(),
       },
     ],
-    calValue: {}
+    calValue: {},
+    prevCalValue: {},
   }),
   props: {
   },
@@ -251,7 +252,12 @@ export default {
   },
   watch: {
     calValue(newDate) {
+      // Move endTime as startTime changes
+      const startDelta = newDate.start.getTime() - this.prevCalValue.start.getTime();
+      newDate.end = new Date(newDate.end.getTime() + startDelta);
+
       this.$store.commit('shiftSetTime', [this.$route.params.id, this.modalShiftId, newDate]);
+      this.prevCalValue = newDate;
 
       // Reactivity hack
       this.$forceUpdate();
@@ -261,7 +267,7 @@ export default {
   methods: {
     openShiftEditModal(shiftId) {
       const shift = this.currentTask.shifts[shiftId];
-      this.calValue = {
+      this.calValue = this.prevCalValue = {
         start: new Date(shift.start * 1000),
         end: new Date((shift.start + shift.duration) * 1000),
       };
