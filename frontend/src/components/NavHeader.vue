@@ -7,9 +7,9 @@
       >
         <img class="logo" alt="Samal to logo" src="../assets/logo.png">
         <b-nav pills>
-          <b-nav-item to="/" exact exact-active-class="active">Table</b-nav-item>
-          <b-nav-item to="/tasks" exact exact-active-class="active">Tasks</b-nav-item>
-          <b-nav-item to="/people" exact exact-active-class="active">People</b-nav-item>
+          <b-nav-item :to="`/${roomID}/`" exact exact-active-class="active">Table</b-nav-item>
+          <b-nav-item :to="`/${roomID}/tasks`" exact exact-active-class="active">Tasks</b-nav-item>
+          <b-nav-item :to="`/${roomID}/people`" exact exact-active-class="active">People</b-nav-item>
         </b-nav>
         <b-button variant="link" v-b-modal.modal-1><b-icon-three-dots-vertical/></b-button>
       </b-container>
@@ -53,6 +53,11 @@
 <script>
 export default {
   name: 'HelloWorld',
+  computed: {
+    roomID() {
+      return this.$router.currentRoute.params.room;
+    },
+  },
   props: {
   },
   components: {
@@ -68,12 +73,12 @@ export default {
 
     deleteThisPerson() {
       this.$store.commit('deletePerson', this.$route.params.id);
-      this.$router.push('/people');
+      this.$router.push(`/${this.roomID}/people`);
     },
 
     deleteThisTask() {
       this.$store.commit('deleteTask', this.$route.params.id);
-      this.$router.push('/tasks');
+      this.$router.push(`/${this.roomID}/tasks`);
     },
   },
 }

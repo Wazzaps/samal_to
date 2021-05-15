@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-list-group class="mb-3">
-      <b-list-group-item :to="'/tasks/' + id" v-for="(task, id) in this.$store.state.tasks" :key="id">
+      <b-list-group-item :to="`/${roomID}/tasks/${id}`" v-for="(task, id) in this.$store.state.tasks" :key="id">
         <div class="d-flex flex-column">
           <div class="d-flex align-items-center">
             <strong class="mr-2">{{task.name}}</strong>
@@ -65,6 +65,11 @@ export default {
   data: () => ({
     calValue: new Date(),
   }),
+  computed: {
+    roomID() {
+      return this.$router.currentRoute.params.room;
+    },
+  },
   components: {
     DatePicker,
   },
@@ -92,7 +97,7 @@ export default {
 
     async addTask() {
       let newTaskId = await this.$store.dispatch('addTask');
-      this.$router.push('/tasks/' + newTaskId);
+      this.$router.push(`/${this.roomID}/tasks/${newTaskId}`);
     }
   },
 }
