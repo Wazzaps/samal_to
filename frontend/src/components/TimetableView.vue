@@ -1,19 +1,13 @@
 <template>
   <div>
-    <!-- <center>
-      <b-button variant="outline-secondary" v-b-modal.timerange-picker>
-        <b>2021-05-22</b> 10:00 – <b>2021-05-22</b> 13:00
-      </b-button>
-    </center> -->
-
     <b-button
       @click="shareToPng"
-      class="mb-3 ml-3 float-right"
+      class="mb-3 ml-2 float-right"
       variant="outline-primary"
-    >Share</b-button>
+    >Share PNG</b-button>
     <b-button
       @click="shareToJson"
-      class="mb-3 ml-3 float-right"
+      class="mb-3 ml-2 float-right"
       variant="outline-primary"
     >Share Link</b-button>
     <b-button
@@ -24,24 +18,6 @@
     >Auto Assign</b-button>
 
     <canvas id="timetable_contents"/>
-
-    <b-modal id="timerange-picker" title="Select date &amp; time range">
-      <h5>Start date:</h5>
-      <b-row>
-        <b-col class="pr-1"><b-datepicker/></b-col>
-        <b-col class="pl-1"><b-timepicker/></b-col>
-      </b-row>
-      <h5 class="mt-4">End date:</h5>
-      <b-row>
-        <b-col class="pr-1"><b-datepicker/></b-col>
-        <b-col class="pl-1"><b-timepicker/></b-col>
-      </b-row>
-      <template #modal-footer="{ ok }">
-        <b-button variant="primary" @click="ok()">
-          Save
-        </b-button>
-      </template>
-    </b-modal>
   </div>
 </template>
 

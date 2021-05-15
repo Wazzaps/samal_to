@@ -1,5 +1,5 @@
 <template>
-    <header id="header" class="mb-4">
+    <header id="header" class="mb-4" v-if="$route.name != 'OnboardingView'">
       <!-- Normal header -->
       <b-container
         v-if="$route.params.id == undefined"
@@ -111,7 +111,7 @@ export default {
 
 .nav-link.active, .logo {
   box-shadow: 0 4px 16px -2px #6594c7;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
 .nav-link.active {

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import App from './App.vue'
+import OnboardingView from './components/OnboardingView.vue'
 import TimetableView from './components/TimetableView.vue'
 import TaskView from './components/TaskView.vue'
 import TasksView from './components/TasksView.vue'
@@ -12,6 +13,7 @@ Vue.config.productionTip = false
 
 const router = new VueRouter({
   routes: [
+    { path: '/', component: OnboardingView, name: "OnboardingView" },
     { path: '/:room/', component: TimetableView },
     { path: '/:room/tasks', component: TasksView },
     { path: '/:room/tasks/:id', component: TaskView, name: "TaskView" },
@@ -19,15 +21,6 @@ const router = new VueRouter({
     { path: '/:room/people/:id', component: PersonView, name: "PersonView", },
   ]
 });
-
-// Watch route for room id changes
-function generateRandomID() {
-  var idBytes = new Uint8Array([0, 0, 0, 0, 0, 0]);
-  for (let i = 0; i < 6; i++) {
-    idBytes[i] = Math.random() * 256;
-  }
-  return btoa(String.fromCharCode.apply(null, idBytes)).replace(/\+/g, "-").replace(/\//g, "_");
-}
 
 // Load state if navigating to new room
 let lastRoom = null;
