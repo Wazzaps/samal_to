@@ -115,6 +115,8 @@ export default {
         });
       },
       assignedShifts(state) {
+        this.tagUpdateAge; // Reactivity hack
+
         let shifts = [];
         for (const [taskId, task] of Object.entries(state.tasks)) {
           for (const [shiftId, shift] of Object.entries(task.shifts)) {
