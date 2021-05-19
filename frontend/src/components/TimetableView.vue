@@ -85,6 +85,14 @@ export default {
         minTime = maxTime = new Date().getTime() / 1000;
       }
 
+      minTime = new Date(minTime * 1000);
+      minTime.setMinutes(0, 0, 0);
+      minTime = minTime.getTime() / 1000;
+
+      maxTime = new Date(maxTime * 1000);
+      maxTime.setMinutes(0, 0, 0);
+      maxTime = (maxTime.getTime() + (60*60*1000)) / 1000;
+
       this.renderTimetableContents(tracks, minTime * 1000, maxTime * 1000);
     },
     renderTimetableContents(tracks, timeStart, timeEnd) {
@@ -333,7 +341,7 @@ export default {
           longsleep_min_rest_per_day: 480,
           overtime_interval_min: 15,
           overtime_threshold: 12,
-          max_overtime_intervals: 8,
+          max_overtime_intervals: 12,
           longsleep_max_overtime_intervals: 12,
           suffer_per_overtime_min: 5,
           longsleep_suffer_per_overtime_min: 0,
@@ -349,7 +357,7 @@ export default {
           req.shifts.push({
             time: parseInt((shift.start - minTime) / 60),
             duration: parseInt(shift.duration / 60),
-            cost: 100,
+            cost: 25 + parseInt(task.difficulty) * 25,
             task
           });
         });

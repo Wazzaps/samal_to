@@ -63,7 +63,7 @@
     <hr/>
 
     <!-- Assignments -->
-    <h3>Assigned shifts</h3>
+    <h3>Assigned shifts <span class="text-secondary">({{ totalHours }} total)</span></h3>
 
     <em v-if="assignedShifts.length == 0">No shifts assigned</em>
 
@@ -153,7 +153,20 @@ export default {
           curDate = nextDate;
         }
         return days;
-      }
+      },
+
+      totalHours(state) {
+        this.tagUpdateAge; // Reactivity hack
+
+        let seconds = 0;
+        Object.values(this.assignedShifts).forEach(day => {
+          for (const shift of day) {
+            seconds += shift.shift.duration;
+          }
+        });
+
+        return this.formatDuration({duration: seconds});
+      },
     }),
 
     roomID() {
@@ -236,8 +249,14 @@ export default {
 
     formatShiftDuration(shift) {
       const durationHr = parseInt(shift.duration / (60 * 60));
-      const durationMin = (shift.duration % (60 * 60));
-      return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 4 ? '' : 's'})`;
+      const durationMin = ((shift.duration / 60) % 60);
+      return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 60*60 ? '' : 's'})`;
+    },
+
+    formatDuration(shift) {
+      const durationHr = parseInt(shift.duration / (60 * 60));
+      const durationMin = ((shift.duration / 60) % 60);
+      return `${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 60*60 ? '' : 's'}`;
     },
 
     deleteThisPerson() {

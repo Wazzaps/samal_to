@@ -26,7 +26,9 @@
           @change="updatePersonName"
           placeholder="Name..."
         />
-        <div class="pad"/>
+        <div class="pad d-flex flex-row justify-content-center">
+          <person-bubble :person="$store.state.people[$route.params.id]" flat/>
+        </div>
       </b-container>
 
       <!-- Item view header (task view) -->
@@ -47,6 +49,7 @@
 </template>
 
 <script>
+import PersonBubble from "./PersonBubble";
 export default {
   name: 'NavHeader',
   computed: {
@@ -57,6 +60,7 @@ export default {
   props: {
   },
   components: {
+    PersonBubble
   },
   methods: {
     updatePersonName(name) {

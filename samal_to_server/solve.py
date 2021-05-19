@@ -16,12 +16,20 @@ def solve(people, settings, shifts):
         person['assigned_tasks'] = person.get('assigned_tasks', [])
         person['prefers_longer_sleep'] = person.get('prefers_longer_sleep', False)
 
+    longest_shift_duration = max([0] + [s['duration'] for s in shifts])
+
     MIN_REST_PER_DAY = int(settings['min_rest_per_day'])
     LONGSLEEP_MIN_REST_PER_DAY = int(settings['longsleep_min_rest_per_day'])
     OVERTIME_INTERVAL_MIN = int(settings['overtime_interval_min'])
     OVERTIME_THRESHOLD = int(settings['overtime_threshold'])
-    MAX_OVERTIME_INTERVALS = int(settings['max_overtime_intervals'])
-    LONGSLEEP_MAX_OVERTIME_INTERVALS = int(settings['longsleep_max_overtime_intervals'])
+    MAX_OVERTIME_INTERVALS = max(
+        int(settings['max_overtime_intervals']),
+        longest_shift_duration / OVERTIME_INTERVAL_MIN
+    )
+    LONGSLEEP_MAX_OVERTIME_INTERVALS = max(
+        int(settings['longsleep_max_overtime_intervals']),
+        longest_shift_duration / OVERTIME_INTERVAL_MIN
+    )
 
     SUFFER_PER_OVERTIME_MIN = int(settings['suffer_per_overtime_min'])
     LONGSLEEP_SUFFER_PER_OVERTIME_MIN = int(settings['longsleep_suffer_per_overtime_min'])

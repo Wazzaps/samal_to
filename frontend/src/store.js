@@ -25,6 +25,7 @@ const store = new Vuex.Store({
       state.tasks[taskId] = {
         name: "",
         description: "",
+        difficulty: 3,
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {},
@@ -34,8 +35,9 @@ const store = new Vuex.Store({
     duplicateTask(state, [newTaskId, srcTaskId]) {
       state.tasks[newTaskId] = JSON.parse(JSON.stringify(state.tasks[srcTaskId]));
       state.tasks[newTaskId].name += " (copy)";
-      console.log(state.tasks[srcTaskId]);
-      console.log(state.tasks[newTaskId]);
+      for (const shift of Object.values(state.tasks[newTaskId].shifts)) {
+        shift.assigned = null;
+      }
     },
 
     deletePerson(state, personId) {
@@ -139,6 +141,10 @@ const store = new Vuex.Store({
 
     taskUpdateDescription(state, [taskId, description]) {
       state.tasks[taskId].description = description;
+    },
+
+    taskUpdateDifficulty(state, [taskId, difficulty]) {
+      state.tasks[taskId].difficulty = difficulty;
     },
 
     createTag(state, [tagId, tagName]) {
@@ -362,6 +368,7 @@ window.exampleData = function () {
       0: {
         name: "Clean dishes",
         description: "Clean each dish in the kitchen\n",
+        difficulty: 3,
         mustHaveTags: [],
         mustNotHaveTags: ["0"],
         shifts: {
@@ -374,6 +381,7 @@ window.exampleData = function () {
       1: {
         name: "Mow lawn",
         description: "The lawnmower is in the shed\n",
+        difficulty: 3,
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
@@ -386,6 +394,7 @@ window.exampleData = function () {
       2: {
         name: "Wash clothes",
         description: "Use two spoons of detergent\n",
+        difficulty: 3,
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
@@ -400,6 +409,7 @@ window.exampleData = function () {
       3: {
         name: "Paint shed",
         description: "Use paint #123, it's inside the shed\n",
+        difficulty: 3,
         mustHaveTags: [],
         mustNotHaveTags: [],
         shifts: {
@@ -409,6 +419,7 @@ window.exampleData = function () {
       4: {
         name: "Buy groceries",
         description: "Go to GenericMart, buy:\n- Eggs\n- Bread\n- Sugar\n",
+        difficulty: 3,
         mustHaveTags: ["1"],
         mustNotHaveTags: [],
         shifts: {
@@ -420,6 +431,7 @@ window.exampleData = function () {
       5: {
         name: "Buy soap",
         description: "Go to GenericMart, buy dish soap\n",
+        difficulty: 3,
         mustHaveTags: ["1"],
         mustNotHaveTags: ["0"],
         shifts: {

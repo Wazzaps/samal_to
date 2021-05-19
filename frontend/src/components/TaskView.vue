@@ -11,6 +11,26 @@
     <hr/>
     <b-input-group class="mb-3">
       <template #prepend>
+        <b-input-group-text><b-icon-hand-thumbs-down/></b-input-group-text>
+      </template>
+      <b-form-rating
+          :value="currentTask.difficulty || 3"
+          @change="updateTaskDifficulty"
+          type="number"
+          size="lg"
+          icon-empty="patch-exclamation"
+          icon-full="patch-exclamation-fill"
+          variant="danger"
+          required
+      />
+    </b-input-group>
+
+    <b-form-text class="mt-2 ml-5">
+      Rate how difficult the task is per unit of time, 1 to 5
+    </b-form-text>
+    <hr/>
+    <b-input-group class="mb-3">
+      <template #prepend>
         <b-input-group-text><b-icon-card-text/></b-input-group-text>
       </template>
       <b-form-textarea
@@ -294,7 +314,7 @@ export default {
     formatShiftDuration(shift) {
       const durationHr = parseInt(shift.duration / (60 * 60));
       const durationMin = ((shift.duration / 60) % 60);
-      return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 4 ? '' : 's'})`;
+      return `(${durationHr}:${durationMin.toString().padStart(2, '0')} hour${shift.duration == 60*60 ? '' : 's'})`;
     },
 
     formatShiftAssigned(shift) {
@@ -308,6 +328,10 @@ export default {
 
     updateTaskDescription(description) {
       this.$store.commit('taskUpdateDescription', [this.$route.params.id, description.trim() + "\n"]);
+    },
+
+    updateTaskDifficulty(difficulty) {
+      this.$store.commit('taskUpdateDifficulty', [this.$route.params.id, difficulty]);
     },
 
     addRequiredTag(tagId) {
