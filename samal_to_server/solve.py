@@ -24,11 +24,11 @@ def solve(people, settings, shifts):
     OVERTIME_THRESHOLD = int(settings['overtime_threshold'])
     MAX_OVERTIME_INTERVALS = max(
         int(settings['max_overtime_intervals']),
-        longest_shift_duration / OVERTIME_INTERVAL_MIN
+        int(longest_shift_duration / OVERTIME_INTERVAL_MIN)
     )
     LONGSLEEP_MAX_OVERTIME_INTERVALS = max(
         int(settings['longsleep_max_overtime_intervals']),
-        longest_shift_duration / OVERTIME_INTERVAL_MIN
+        int(longest_shift_duration / OVERTIME_INTERVAL_MIN)
     )
 
     SUFFER_PER_OVERTIME_MIN = int(settings['suffer_per_overtime_min'])
