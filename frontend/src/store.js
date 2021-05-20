@@ -51,9 +51,10 @@ const store = new Vuex.Store({
       delete state.people[personId];
     },
 
-    duplicatePerson(state, [newPersonId, srcPersonId]) {
+    duplicatePerson(state, [newPersonId, newPersonNum, srcPersonId]) {
       state.people[newPersonId] = JSON.parse(JSON.stringify(state.people[srcPersonId]));
       state.people[newPersonId].name += " (copy)";
+      state.people[newPersonId].num = newPersonNum;
       state.people[newPersonId].ident_color = newPersonId % 6;
     },
 
@@ -197,7 +198,15 @@ const store = new Vuex.Store({
         }
       }
 
-      commit('duplicatePerson', [availableId, personId]);
+      let availableNum = -1;
+      for (let i = 1; True; i++) {
+        if (Object.values(state.people).every(p => p.num != i)) {
+          availableNum = i;
+          break;
+        }
+      }
+
+      commit('duplicatePerson', [availableId, availableNum, personId]);
       return availableId;
     },
     addTask({ commit, state }) {

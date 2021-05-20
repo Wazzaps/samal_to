@@ -6,7 +6,7 @@
         :disabled="autoSolveDisabled"
         class="mb-3"
         variant="primary"
-      >Auto Assign</b-button>
+      >{{ autoSolveDisabled ? "Working..." : "Auto Assign" }}</b-button>
       <b-button
         id="share-to-json"
         @click="shareToJson"
@@ -24,6 +24,10 @@
     <b-popover target="share-to-json" placement="bottom" variant="success">
       <strong>Link copied!</strong>
     </b-popover>
+
+    <b-form-text>Auto assignment will keep existing assignments.
+      Use the "Unassign All Shifts" button in the "Tasks" tab to remove them.</b-form-text>
+    <br>
 
     <canvas id="timetable_contents"/>
   </div>
